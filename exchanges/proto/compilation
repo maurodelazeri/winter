@@ -1,0 +1,6 @@
+protoc --proto_path=. --cpp_out=. .marketdata.proto
+protoc --proto_path=. --java_out=. .marketdata.proto
+protoc --proto_path=. --go_out=. marketdata.proto
+protoc --proto_path=. --js_out=. .marketdata.proto
+protoc --proto_path=. --python_out=. .marketdata.proto
+
