@@ -19,12 +19,12 @@ type NanomsgServer struct {
 // coinbase:BTCUSD:book
 
 // Initialize nanomsg instance
-func (r *NanomsgServer) Initialize(exchange string) {
+func (r *NanomsgServer) Initialize(venue string) {
 
 	r.Message = make(chan []byte, 10000)
 
 	var url string
-	switch exchange {
+	switch venue {
 	case "coinbase":
 		url = os.Getenv("PUSH_COINBASE_BIND")
 	case "binance":
@@ -34,7 +34,7 @@ func (r *NanomsgServer) Initialize(exchange string) {
 	case "bitmex":
 		url = os.Getenv("PUSH_BITMEX_BIND")
 	default:
-		logrus.Warn("Nanomsg cant initialized, exchange does not exist: ", exchange)
+		logrus.Warn("Nanomsg cant initialized, venue does not exist: ", venue)
 		os.Exit(1)
 	}
 	socket, err := pub.NewSocket()

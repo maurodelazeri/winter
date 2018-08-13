@@ -13,14 +13,14 @@ import (
 
 	"github.com/maurodelazeri/winter/common"
 	"github.com/maurodelazeri/winter/config"
-	exchange "github.com/maurodelazeri/winter/exchanges"
-	"github.com/maurodelazeri/winter/exchanges/coinbase"
+	venue "github.com/maurodelazeri/winter/venues"
+	"github.com/maurodelazeri/winter/venues/coinbase"
 	"github.com/sirupsen/logrus"
 )
 
 // Winter contains configuration
 type Winter struct {
-	exchanges []exchange.Winter
+	venues []venue.Winter
 	config    *config.Config
 }
 
@@ -54,7 +54,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	SetupExchanges()
+	SetupVenues()
 
 	logrus.Infof("Winter started.\n")
 
@@ -64,26 +64,26 @@ func main() {
 	Shutdown()
 }
 
-// SetupExchanges sets up the exchanges used by the westeros
-func SetupExchanges() {
-	for _, exch := range winter.config.Exchanges {
+// SetupVenues sets up the venues used by the westeros
+func SetupVenues() {
+	for _, exch := range winter.config.Venues {
 		if !exch.Enabled {
-			log.Printf("%s: Exchange support: Disabled", exch.Name)
+			log.Printf("%s: Venue support: Disabled", exch.Name)
 			continue
 		} else {
-			err := LoadExchange(exch.Name)
+			err := LoadVenue(exch.Name)
 			if err != nil {
-				log.Printf("LoadExchange %s failed: %s", exch.Name, err)
+				log.Printf("LoadVenue %s failed: %s", exch.Name, err)
 				continue
 			}
 		}
 	}
 }
 
-// LoadExchange loads an exchange by name
-func LoadExchange(name string) error {
+// LoadVenue loads an venue by name
+func LoadVenue(name string) error {
 	nameLower := common.StringToLower(name)
-	var exch exchange.Winter
+	var exch venue.Winter
 	switch nameLower {
 	// case "bitfinex":
 	// 	exch = new(bitfinex.Bitfinex)
@@ -94,16 +94,16 @@ func LoadExchange(name string) error {
 	case "coinbase":
 		exch = new(coinbase.Coinbase)
 	default:
-		return errors.New("exchange not found")
+		return errors.New("venue not found")
 	}
 
 	if exch == nil {
-		return errors.New("exchange failed to load")
+		return errors.New("venue failed to load")
 	}
 
 	exch.SetDefaults()
-	winter.exchanges = append(winter.exchanges, exch)
-	exchCfg, err := winter.config.GetExchangeConfig(name)
+	winter.venues = append(winter.venues, exch)
+	exchCfg, err := winter.config.GetVenueConfig(name)
 	if err != nil {
 		return err
 	}

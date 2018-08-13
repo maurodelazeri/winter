@@ -7,14 +7,14 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/maurodelazeri/winter/config"
-	exchange "github.com/maurodelazeri/winter/exchanges"
-	pb "github.com/maurodelazeri/winter/exchanges/proto"
+	venue "github.com/maurodelazeri/winter/venues"
+	pb "github.com/maurodelazeri/winter/venues/proto"
 	"github.com/maurodelazeri/winter/nats"
 )
 
 // Coinbase internals
 type Coinbase struct {
-	exchange.Base
+	venue.Base
 	Name         string
 	Enabled      bool
 	Verbose      bool
@@ -54,20 +54,20 @@ type WebsocketCoinbase struct {
 	MessageType []byte
 }
 
-// SetDefaults sets default values for the exchange
+// SetDefaults sets default values for the venue
 func (r *Coinbase) SetDefaults() {
 	r.Name = "coinbase"
 }
 
-// Setup initialises the exchange parameters with the current configuration
-func (r *Coinbase) Setup(exch config.ExchangeConfig) {
+// Setup initialises the venue parameters with the current configuration
+func (r *Coinbase) Setup(exch config.VenueConfig) {
 	if !exch.Enabled {
 		r.SetEnabled(false)
 	} else {
 		r.Enabled = true
 		r.Verbose = exch.Verbose
 		r.APIEnabledPairs = exch.APIEnabledPairs
-		r.ExchangeEnabledPairs = exch.ExchangeEnabledPairs
+		r.VenueEnabledPairs = exch.VenueEnabledPairs
 		r.WebsocketDedicated = exch.WebsocketDedicated
 		r.KafkaPartition = exch.KafkaPartition
 		producer := new(natsproducer.Producer)
@@ -81,7 +81,7 @@ func (r *Coinbase) Start() {
 	r.WebsocketURL = "wss://ws-feed.pro.coinbase.com"
 
 	var dedicatedSocket, sharedSocket []string
-	for _, pair := range r.ExchangeEnabledPairs {
+	for _, pair := range r.VenueEnabledPairs {
 		_, exist := r.StringInSlice(pair, r.WebsocketDedicated)
 		if exist {
 			dedicatedSocket = append(dedicatedSocket, pair)

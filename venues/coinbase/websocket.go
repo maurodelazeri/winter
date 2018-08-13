@@ -16,7 +16,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/backoff"
 	"github.com/maurodelazeri/winter/common"
-	pb "github.com/maurodelazeri/winter/exchanges/proto"
+	pb "github.com/maurodelazeri/winter/venues/proto"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
 )
@@ -146,7 +146,7 @@ func (r *WebsocketCoinbase) connect() {
 	r.LiveOrderBook = make(map[string]pb.Orderbook)
 
 	for _, sym := range r.subscribedPairs {
-		position, exist := r.base.StringInSlice(sym, r.base.ExchangeEnabledPairs)
+		position, exist := r.base.StringInSlice(sym, r.base.VenueEnabledPairs)
 		symbol := strings.Split(r.base.APIEnabledPairs[position], "/")
 		composedSymbol := symbol[0] + symbol[1]
 		if exist {
@@ -217,7 +217,7 @@ func (r *WebsocketCoinbase) startReading() {
 							logrus.Error(err)
 							continue
 						}
-						position, exist := r.base.StringInSlice(data.ProductID, r.base.ExchangeEnabledPairs)
+						position, exist := r.base.StringInSlice(data.ProductID, r.base.VenueEnabledPairs)
 						if exist {
 							symbolChannel := strings.Split(r.base.APIEnabledPairs[position], "/")
 							composedSymbol := symbolChannel[0] + symbolChannel[1]

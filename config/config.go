@@ -13,38 +13,38 @@ import (
 // Cfg stores a config
 var Cfg Config
 
-// Config holds the exchanges individual config
+// Config holds the venues individual config
 type Config struct {
-	Exchanges    []ExchangeConfig
+	Venues    []VenueConfig
 	mysqlSession *sql.DB
 }
 
-// ExchangeConfig holds all the information needed for each enabled Exchange.
-type ExchangeConfig struct {
+// VenueConfig holds all the information needed for each enabled Venue.
+type VenueConfig struct {
 	Name                 string
 	Enabled              bool
 	Verbose              bool
 	WebsocketDedicated   []string
-	ExchangeEnabledPairs []string
+	VenueEnabledPairs []string
 	KafkaPartition       int32
 	APIEnabledPairs      []string
 }
 
-// GetExchangeConfig returns your exchange configurations by its indivdual name
-func (c *Config) GetExchangeConfig(name string) (ExchangeConfig, error) {
-	for i := range c.Exchanges {
-		if c.Exchanges[i].Name == name {
-			return c.Exchanges[i], nil
+// GetVenueConfig returns your venue configurations by its indivdual name
+func (c *Config) GetVenueConfig(name string) (VenueConfig, error) {
+	for i := range c.Venues {
+		if c.Venues[i].Name == name {
+			return c.Venues[i], nil
 		}
 	}
-	return ExchangeConfig{}, fmt.Errorf("Exchange %s: Not found", name)
+	return VenueConfig{}, fmt.Errorf("Venue %s: Not found", name)
 }
 
-// CheckExchangeConfigValues returns configuation values for all enabled
-// exchanges
-func (c *Config) CheckExchangeConfigValues() error {
+// CheckVenueConfigValues returns configuation values for all enabled
+// venues
+func (c *Config) CheckVenueConfigValues() error {
 	c.mysqlSession = mysqlserver.GetMysqlSession()
-	sql := "SELECT e.name,e.enabled, kafka_partition, COALESCE((SELECT GROUP_CONCAT(pair) FROM exchange_pair p WHERE e.id=p.exchange_id and p.enabled=1),'0') as enabledPairs, COALESCE((SELECT GROUP_CONCAT(pair_exchange) FROM exchange_pair p WHERE e.id=p.exchange_id and p.enabled=1),'0') as exchangePairs, COALESCE((SELECT GROUP_CONCAT(pair_exchange) FROM exchange_pair p WHERE e.id=p.exchange_id and p.enabled=1 and p.websocket_dedicated=1),'0') as websocketDedicated FROM exchange e, exchange_pair p group by e.id"
+	sql := "SELECT e.name,e.enabled, kafka_partition, COALESCE((SELECT GROUP_CONCAT(pair) FROM venue_pair p WHERE e.id=p.venue_id and p.enabled=1),'0') as enabledPairs, COALESCE((SELECT GROUP_CONCAT(pair_venue) FROM venue_pair p WHERE e.id=p.venue_id and p.enabled=1),'0') as venuePairs, COALESCE((SELECT GROUP_CONCAT(pair_venue) FROM venue_pair p WHERE e.id=p.venue_id and p.enabled=1 and p.websocket_dedicated=1),'0') as websocketDedicated FROM venue e, venue_pair p group by e.id"
 	rows, err := c.mysqlSession.Query(sql)
 
 	checkErr(err)
@@ -54,43 +54,43 @@ func (c *Config) CheckExchangeConfigValues() error {
 		var enabled bool
 		var kafkaPartition int32
 		var enabledPairs string
-		var exchangePairs string
+		var venuePairs string
 		var websocketDedicated string
 
-		err = rows.Scan(&name, &enabled, &kafkaPartition, &enabledPairs, &exchangePairs, &websocketDedicated)
+		err = rows.Scan(&name, &enabled, &kafkaPartition, &enabledPairs, &venuePairs, &websocketDedicated)
 		checkErr(err)
 
-		if enabledPairs == "" || exchangePairs == "" {
-			logrus.Error("Exchange ", name, " pairs are not properly configured")
+		if enabledPairs == "" || venuePairs == "" {
+			logrus.Error("Venue ", name, " pairs are not properly configured")
 			continue
 		}
 
-		var exchange ExchangeConfig
+		var venue VenueConfig
 
-		if enabledPairs != "0" || exchangePairs != "0" {
-			exchange.APIEnabledPairs = common.SplitStrings(strings.Replace(enabledPairs, " ", "", -1), ",")
-			exchange.ExchangeEnabledPairs = common.SplitStrings(strings.Replace(exchangePairs, " ", "", -1), ",")
+		if enabledPairs != "0" || venuePairs != "0" {
+			venue.APIEnabledPairs = common.SplitStrings(strings.Replace(enabledPairs, " ", "", -1), ",")
+			venue.VenueEnabledPairs = common.SplitStrings(strings.Replace(venuePairs, " ", "", -1), ",")
 		}
 
 		if websocketDedicated == "0" {
-			exchange.WebsocketDedicated = []string{}
+			venue.WebsocketDedicated = []string{}
 		} else {
-			exchange.WebsocketDedicated = common.SplitStrings(strings.Replace(websocketDedicated, " ", "", -1), ",")
+			venue.WebsocketDedicated = common.SplitStrings(strings.Replace(websocketDedicated, " ", "", -1), ",")
 		}
 
-		exchange.Name = name
-		exchange.Enabled = enabled
-		exchange.KafkaPartition = kafkaPartition
+		venue.Name = name
+		venue.Enabled = enabled
+		venue.KafkaPartition = kafkaPartition
 
 		if enabled {
-			logrus.Info("EXCHANGE: ", name, " ENABLED ", len(exchange.APIEnabledPairs), " pairs")
+			logrus.Info("EXCHANGE: ", name, " ENABLED ", len(venue.APIEnabledPairs), " pairs")
 		}
 
-		c.Exchanges = append(c.Exchanges, exchange)
+		c.Venues = append(c.Venues, venue)
 	}
 
-	if len(c.Exchanges) == 0 {
-		logrus.Info("There is no exchanges enabled")
+	if len(c.Venues) == 0 {
+		logrus.Info("There is no venues enabled")
 	}
 
 	return nil
@@ -98,7 +98,7 @@ func (c *Config) CheckExchangeConfigValues() error {
 
 // LoadConfig loads your configuration file into your configuration object
 func (c *Config) LoadConfig() error {
-	err := c.CheckExchangeConfigValues()
+	err := c.CheckVenueConfigValues()
 	if err != nil {
 		return fmt.Errorf("Fatal error checking config values. Error: %s", err)
 	}

@@ -1,6 +1,6 @@
 # winter
 
-Streaming data from exchanges to nats pipeline
+Streaming data from venues to nats pipeline
 
 ```
 export DB_HOST=127.0.0.1:3306

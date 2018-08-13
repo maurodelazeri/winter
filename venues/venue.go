@@ -1,4 +1,4 @@
-package exchange
+package venue
 
 import (
 	"fmt"
@@ -8,21 +8,21 @@ import (
 	"github.com/maurodelazeri/winter/config"
 )
 
-// Base stores the individual exchange information
+// Base stores the individual venue information
 type Base struct {
 	Name                 string
 	Enabled              bool
 	Verbose              bool
 	WebsocketDedicated   []string
-	ExchangeEnabledPairs []string
+	VenueEnabledPairs []string
 	KafkaPartition       int32
 	APIEnabledPairs      []string
 	WebsocketURL         string
 }
 
-// Winter enforces standard functions for all exchanges supported in
+// Winter enforces standard functions for all venues supported in
 type Winter interface {
-	Setup(exch config.ExchangeConfig)
+	Setup(exch config.VenueConfig)
 	SetDefaults()
 	Start()
 	GetName() string
@@ -30,17 +30,17 @@ type Winter interface {
 	SetEnabled(bool)
 }
 
-// GetName is a method that returns the name of the exchange base
+// GetName is a method that returns the name of the venue base
 func (e *Base) GetName() string {
 	return e.Name
 }
 
-// SetEnabled is a method that sets if the exchange is enabled
+// SetEnabled is a method that sets if the venue is enabled
 func (e *Base) SetEnabled(enabled bool) {
 	e.Enabled = enabled
 }
 
-// IsEnabled is a method that returns if the current exchange is enabled
+// IsEnabled is a method that returns if the current venue is enabled
 func (e *Base) IsEnabled() bool {
 	return e.Enabled
 }
