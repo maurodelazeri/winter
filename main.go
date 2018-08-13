@@ -116,7 +116,7 @@ func LoadExchange(name string) error {
 
 // AdjustGoMaxProcs adjusts the maximum processes that the CPU can handle.
 func AdjustGoMaxProcs() {
-	logrus.Info("Adjusting seraph runtime performance..")
+	logrus.Info("Adjusting winter runtime performance..")
 	maxProcsEnv := os.Getenv("GOMAXPROCS")
 	maxProcs := runtime.NumCPU()
 	logrus.Info("Number of CPU's detected:", maxProcs)
@@ -137,7 +137,7 @@ func AdjustGoMaxProcs() {
 }
 
 // HandleInterrupt monitors and captures the SIGTERM in a new goroutine then
-// shuts down seraph
+// shuts down winter
 func HandleInterrupt() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -148,9 +148,9 @@ func HandleInterrupt() {
 	}()
 }
 
-// Shutdown correctly shuts down seraph saving configuration files
+// Shutdown correctly shuts down winter saving configuration files
 func Shutdown() {
-	logrus.Info("Seraph shutting down..")
+	logrus.Info("Winter shutting down..")
 	logrus.Info("Exiting.")
 	os.Exit(1)
 }
