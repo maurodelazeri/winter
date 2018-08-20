@@ -4,7 +4,7 @@ Streaming data from venues to nats pipeline
 
 ```
 export DB_HOST=192.168.1.36:3306
-export MYSQLUSER=root
+export MYSQLUSER=zinnion
 export MYSQLPASS=Br@sa154
 export NATS_SERVER="nats://192.168.1.37:4222"
 export BROKERS="192.168.1.37:9092"
