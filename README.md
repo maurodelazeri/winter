@@ -15,10 +15,14 @@ export MYSQLPASS=123456
 export NATS_SERVER="nats://192.168.3.100:4222"
 export BROKERS="192.168.3.100:9092"
 
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s"
 
 https://nats.io/documentation/server/gnatsd-authorization/
 gnatsd -c server.cfg
 gnatsd -m 8222
 nats-top
+
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s"
+
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags '-w -s -extldflags "-static"' 
+
 ```
