@@ -3,7 +3,7 @@
 Streaming data from venues to nats pipeline
 
 ```
-export DB_HOST=192.168.1.3:3306
+export DB_HOST=192.168.1.37:3306
 export MYSQLUSER=root
 export MYSQLPASS=Br@sa154
 export NATS_SERVER="nats://192.168.1.37:4222"
