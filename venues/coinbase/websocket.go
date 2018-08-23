@@ -15,7 +15,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/backoff"
-	"github.com/maurodelazeri/winter/common"
+	"github.com/maurodelazeri/lion/common"
 	pb "github.com/maurodelazeri/winter/venues/proto"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"

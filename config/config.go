@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/maurodelazeri/winter/common"
-	"github.com/maurodelazeri/winter/mysql"
+	"github.com/maurodelazeri/lion/common"
+	"github.com/maurodelazeri/lion/mysql"
 	"github.com/sirupsen/logrus"
 )
 
@@ -15,19 +15,19 @@ var Cfg Config
 
 // Config holds the venues individual config
 type Config struct {
-	Venues    []VenueConfig
+	Venues       []VenueConfig
 	mysqlSession *sql.DB
 }
 
 // VenueConfig holds all the information needed for each enabled Venue.
 type VenueConfig struct {
-	Name                 string
-	Enabled              bool
-	Verbose              bool
-	WebsocketDedicated   []string
-	VenueEnabledPairs []string
-	KafkaPartition       int32
-	APIEnabledPairs      []string
+	Name               string
+	Enabled            bool
+	Verbose            bool
+	WebsocketDedicated []string
+	VenueEnabledPairs  []string
+	KafkaPartition     int32
+	APIEnabledPairs    []string
 }
 
 // GetVenueConfig returns your venue configurations by its indivdual name

@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/maurodelazeri/winter/common"
+	"github.com/maurodelazeri/lion/common"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
 	"github.com/maurodelazeri/winter/venues/coinbase"
@@ -21,7 +21,7 @@ import (
 // Winter contains configuration
 type Winter struct {
 	venues []venue.Winter
-	config    *config.Config
+	config *config.Config
 }
 
 const banner = `

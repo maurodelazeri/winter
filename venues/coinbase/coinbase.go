@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/maurodelazeri/lion/streaming/nats/producer"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
 	pb "github.com/maurodelazeri/winter/venues/proto"
-	"github.com/maurodelazeri/winter/nats"
 )
 
 // Coinbase internals
