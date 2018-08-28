@@ -8,8 +8,8 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/maurodelazeri/lion/streaming/nats/producer"
 	"github.com/maurodelazeri/winter/config"
+	pbmarket "github.com/maurodelazeri/winter/marketdata"
 	venue "github.com/maurodelazeri/winter/venues"
-	pb "github.com/maurodelazeri/winter/venues/proto"
 )
 
 // Coinbase internals
@@ -49,7 +49,7 @@ type WebsocketCoinbase struct {
 	HandshakeTimeout time.Duration
 
 	OrderBookMAP  map[string]map[float64]float64
-	LiveOrderBook map[string]pb.Orderbook
+	LiveOrderBook map[string]pbmarket.Orderbook
 
 	MessageType []byte
 }

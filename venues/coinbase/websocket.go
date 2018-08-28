@@ -16,7 +16,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/backoff"
 	"github.com/maurodelazeri/lion/common"
-	pb "github.com/maurodelazeri/winter/venues/proto"
+	pbmarket "github.com/maurodelazeri/winter/marketdata"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
 )
@@ -143,14 +143,14 @@ func (r *WebsocketCoinbase) connect() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	r.OrderBookMAP = make(map[string]map[float64]float64)
-	r.LiveOrderBook = make(map[string]pb.Orderbook)
+	r.LiveOrderBook = make(map[string]pbmarket.Orderbook)
 
 	for _, sym := range r.subscribedPairs {
 		position, exist := r.base.StringInSlice(sym, r.base.VenueEnabledPairs)
 		symbol := strings.Split(r.base.APIEnabledPairs[position], "/")
 		composedSymbol := symbol[0] + symbol[1]
 		if exist {
-			r.LiveOrderBook[composedSymbol] = pb.Orderbook{}
+			r.LiveOrderBook[composedSymbol] = pbmarket.Orderbook{}
 			r.OrderBookMAP[composedSymbol+"bids"] = make(map[float64]float64)
 			r.OrderBookMAP[composedSymbol+"asks"] = make(map[float64]float64)
 		}
@@ -260,9 +260,9 @@ func (r *WebsocketCoinbase) startReading() {
 
 								wg.Add(1)
 								go func() {
-									refLiveBook.Bids = []*pb.Item{}
+									refLiveBook.Bids = []*pbmarket.Item{}
 									for price, amount := range r.OrderBookMAP[composedSymbol+"bids"] {
-										refLiveBook.Bids = append(refLiveBook.Bids, &pb.Item{Price: price, Amount: amount})
+										refLiveBook.Bids = append(refLiveBook.Bids, &pbmarket.Item{Price: price, Amount: amount})
 									}
 									sort.Slice(refLiveBook.Bids, func(i, j int) bool {
 										return refLiveBook.Bids[i].Price > refLiveBook.Bids[j].Price
@@ -272,9 +272,9 @@ func (r *WebsocketCoinbase) startReading() {
 
 								wg.Add(1)
 								go func() {
-									refLiveBook.Asks = []*pb.Item{}
+									refLiveBook.Asks = []*pbmarket.Item{}
 									for price, amount := range r.OrderBookMAP[composedSymbol+"asks"] {
-										refLiveBook.Asks = append(refLiveBook.Asks, &pb.Item{Price: price, Amount: amount})
+										refLiveBook.Asks = append(refLiveBook.Asks, &pbmarket.Item{Price: price, Amount: amount})
 									}
 									sort.Slice(refLiveBook.Asks, func(i, j int) bool {
 										return refLiveBook.Asks[i].Price < refLiveBook.Asks[j].Price
@@ -304,13 +304,13 @@ func (r *WebsocketCoinbase) startReading() {
 								wg.Wait()
 								(*liveBookMemomory)[composedSymbol] = refLiveBook
 
-								book := &pb.Orderbook{
+								book := &pbmarket.Orderbook{
 									Symbol:     composedSymbol,
 									Levels:     20,
 									Timestamp:  uint64(r.base.MakeTimestamp()),
 									Asks:       (*liveBookMemomory)[composedSymbol].Asks,
 									Bids:       (*liveBookMemomory)[composedSymbol].Bids,
-									MarketType: pb.MarketDataType_SPOT,
+									MarketType: pbmarket.MarketDataType_SPOT,
 								}
 								serialized, err := proto.Marshal(book)
 								if err != nil {
@@ -324,19 +324,19 @@ func (r *WebsocketCoinbase) startReading() {
 							}
 
 							if data.Type == "match" {
-								var side pb.Side
+								var side pbmarket.Side
 								if data.Side == "buy" {
-									side = pb.Side_BUY
+									side = pbmarket.Side_BUY
 								} else {
-									side = pb.Side_SELL
+									side = pbmarket.Side_SELL
 								}
-								trades := &pb.Trade{
+								trades := &pbmarket.Trade{
 									Symbol:     composedSymbol,
 									Timestamp:  uint64(r.base.MakeTimestamp()),
 									Price:      data.Price,
 									Side:       side,
 									Size:       data.Price,
-									MarketType: pb.MarketDataType_SPOT,
+									MarketType: pbmarket.MarketDataType_SPOT,
 								}
 								serialized, err := proto.Marshal(trades)
 								if err != nil {
@@ -348,20 +348,20 @@ func (r *WebsocketCoinbase) startReading() {
 							}
 
 							if data.Type == "ticker" {
-								var side pb.Side
+								var side pbmarket.Side
 								if data.Side == "buy" {
-									side = pb.Side_BUY
+									side = pbmarket.Side_BUY
 								} else {
-									side = pb.Side_SELL
+									side = pbmarket.Side_SELL
 								}
-								ticker := &pb.Ticker{
+								ticker := &pbmarket.Ticker{
 									Symbol:     composedSymbol,
 									Timestamp:  uint64(r.base.MakeTimestamp()),
 									Price:      data.Price,
 									Side:       side,
 									BestBid:    data.BestBid,
 									BestAsk:    data.BestAsk,
-									MarketType: pb.MarketDataType_SPOT,
+									MarketType: pbmarket.MarketDataType_SPOT,
 								}
 								serialized, err := proto.Marshal(ticker)
 								if err != nil {
@@ -387,7 +387,7 @@ func (r *WebsocketCoinbase) startReading() {
 										if total > 20 {
 											continue
 										}
-										refLiveBook.Asks = append(refLiveBook.Asks, &pb.Item{Price: price, Amount: amount})
+										refLiveBook.Asks = append(refLiveBook.Asks, &pbmarket.Item{Price: price, Amount: amount})
 										r.OrderBookMAP[composedSymbol+"bids"][price] = amount
 										total++
 									}
@@ -403,7 +403,7 @@ func (r *WebsocketCoinbase) startReading() {
 										if total > 20 {
 											continue
 										}
-										refLiveBook.Bids = append(refLiveBook.Bids, &pb.Item{Price: price, Amount: amount})
+										refLiveBook.Bids = append(refLiveBook.Bids, &pbmarket.Item{Price: price, Amount: amount})
 										r.OrderBookMAP[composedSymbol+"asks"][price] = amount
 										total++
 									}

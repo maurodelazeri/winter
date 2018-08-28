@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	pbmarket "github.com/maurodelazeri/winter/marketdata"
+
 	"github.com/maurodelazeri/lion/common"
 	"github.com/maurodelazeri/lion/mysql"
 	"github.com/sirupsen/logrus"
@@ -28,6 +30,7 @@ type VenueConfig struct {
 	VenueEnabledPairs  []string
 	KafkaPartition     int32
 	APIEnabledPairs    []string
+	Products           map[string]pbmarket.Candle
 }
 
 // GetVenueConfig returns your venue configurations by its indivdual name

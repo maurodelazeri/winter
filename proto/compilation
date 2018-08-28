@@ -1,0 +1,1 @@
+protoc -I proto/ proto/marketdata.proto --go_out=marketdata
