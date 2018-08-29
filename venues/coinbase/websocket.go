@@ -16,7 +16,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/backoff"
 	"github.com/maurodelazeri/lion/common"
-	pbmarket "github.com/maurodelazeri/winter/marketdata"
+	pbmarket "github.com/maurodelazeri/lion/protobuf/marketdata"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
 )

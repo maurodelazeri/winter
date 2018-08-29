@@ -14,7 +14,6 @@ import (
 	"github.com/maurodelazeri/lion/common"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
-	"github.com/maurodelazeri/winter/venues/coinbase"
 	"github.com/sirupsen/logrus"
 )
 
@@ -91,8 +90,8 @@ func LoadVenue(name string) error {
 	// 	exch = new(bitmex.Bitmex)
 	// case "binance":
 	// 	exch = new(binance.Binance)
-	case "coinbase":
-		exch = new(coinbase.Coinbase)
+	// case "coinbase":
+	// 	exch = new(coinbase.Coinbase)
 	default:
 		return errors.New("venue not found")
 	}

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	pbmarket "github.com/maurodelazeri/lion/protobuf/marketdata"
 	"github.com/maurodelazeri/lion/streaming/nats/producer"
 	"github.com/maurodelazeri/winter/config"
-	pbmarket "github.com/maurodelazeri/winter/marketdata"
 	venue "github.com/maurodelazeri/winter/venues"
 )
 
