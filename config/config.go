@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/maurodelazeri/lion/postgres"
+	"github.com/sirupsen/logrus"
 )
 
 // Cfg stores a config
@@ -12,8 +13,7 @@ var Cfg Config
 
 // Config holds the venues individual config
 type Config struct {
-	Venues  []VenueConfig
-	Enabled bool
+	Venues map[string]map[string]VenueConfig
 }
 
 // VenueConfig holds all the information needed for each enabled Venue.
@@ -34,42 +34,27 @@ type VenueConfig struct {
 }
 
 // GetVenueConfig returns your venue configurations by its indivdual name
-func (c *Config) GetVenueConfig(name string) (VenueConfig, error) {
-	for i := range c.Venues {
-		if c.Venues[i].Name == name {
-			return c.Venues[i], nil
+func (c *Config) GetVenueConfig(name string) (map[string]VenueConfig, error) {
+	for i := range c.Venues[name] {
+		if i == name {
+			return c.Venues[name], nil
 		}
 	}
-	return VenueConfig{}, fmt.Errorf("Venue %s: Not found", name)
-}
-
-func (c *Config) loadDatabaseConfig() error {
-	venues := []VenueConfig{}
-	if err := postgres.DB.Select(&venues, "SELECT v.venue_id,v.name,v.enabled,v.api_key,v.api_secret,v.passphrase,p.individual_connection,p.product,p.venue_product,p.minimum_order_size,p.step_size,p.maker_fee,p.taker_fee FROM venues v, venues_products p WHERE v.venue_id=p.venue_id"); err != nil {
-		log.Fatal(err)
-	}
-	for i, p := range venues {
-		log.Printf("%d => %v , %v", i, p.VenueID, string(p.Name))
-	}
-	return nil
+	return map[string]VenueConfig{}, fmt.Errorf("Venue %s: Not found", name)
 }
 
 // LoadConfig loads your configuration file into your configuration object
 func (c *Config) LoadConfig() error {
-	err := c.loadDatabaseConfig()
-	if err != nil {
-		return fmt.Errorf("Fatal error checking config values. Error: %s", err)
+	venues := []VenueConfig{}
+	if err := postgres.DB.Select(&venues, "SELECT v.venue_id,v.name,v.enabled,v.api_key,v.api_secret,v.passphrase,p.individual_connection,p.product,p.venue_product,p.minimum_order_size,p.step_size,p.maker_fee,p.taker_fee FROM venues v, venues_products p WHERE v.venue_id=p.venue_id"); err != nil {
+		log.Fatal(err)
 	}
+	for _, p := range venues {
+		c.Venues[p.Name] = make(map[string]VenueConfig)
+	}
+	for _, p := range venues {
+		c.Venues[p.Name][p.Product] = p
+	}
+	logrus.Info(c.Venues)
 	return nil
-}
-
-// GetConfig returns a pointer to a confiuration object
-func GetConfig() *Config {
-	return &Cfg
-}
-
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
 }

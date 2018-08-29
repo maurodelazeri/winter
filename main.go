@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/maurodelazeri/lion/common"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
 	"github.com/sirupsen/logrus"
@@ -46,7 +45,8 @@ func main() {
 	defer cancelFunc()
 
 	winter.config = &config.Cfg
-	logrus.Infof("Loading config...")
+	logrus.Infof("Loading venues and products...")
+	winter.config.Venues = make(map[string]map[string]config.VenueConfig)
 
 	err := winter.config.LoadConfig()
 	if err != nil {
@@ -65,25 +65,20 @@ func main() {
 
 // SetupVenues sets up the venues used by the westeros
 func SetupVenues() {
-	for _, exch := range winter.config.Venues {
-		if !exch.Enabled {
-			log.Printf("%s: Venue support: Disabled", exch.Name)
+	for x := range winter.config.Venues {
+		err := LoadVenue(x)
+		if err != nil {
+			log.Printf("LoadVenue %s failed: %s", x, err)
 			continue
-		} else {
-			err := LoadVenue(exch.Name)
-			if err != nil {
-				log.Printf("LoadVenue %s failed: %s", exch.Name, err)
-				continue
-			}
 		}
+
 	}
 }
 
 // LoadVenue loads an venue by name
 func LoadVenue(name string) error {
-	nameLower := common.StringToLower(name)
 	var exch venue.Winter
-	switch nameLower {
+	switch name {
 	// case "bitfinex":
 	// 	exch = new(bitfinex.Bitfinex)
 	// case "bitmex":
@@ -92,6 +87,8 @@ func LoadVenue(name string) error {
 	// 	exch = new(binance.Binance)
 	// case "coinbase":
 	// 	exch = new(coinbase.Coinbase)
+	case "COINBASEPRO":
+		logrus.Info("YEAAA BABAY ", exch)
 	default:
 		return errors.New("venue not found")
 	}
@@ -100,15 +97,15 @@ func LoadVenue(name string) error {
 		return errors.New("venue failed to load")
 	}
 
-	exch.SetDefaults()
-	winter.venues = append(winter.venues, exch)
-	exchCfg, err := winter.config.GetVenueConfig(name)
-	if err != nil {
-		return err
-	}
-	exchCfg.Enabled = true
-	exch.Setup(exchCfg)
-	exch.Start()
+	// exch.SetDefaults()
+	// winter.venues = append(winter.venues, exch)
+	// exchCfg, err := winter.config.GetVenueConfig(name)
+	// if err != nil {
+	// 	return err
+	// }
+	// exchCfg.Enabled = true
+	// exch.Setup(exchCfg)
+	// exch.Start()
 
 	return nil
 }
