@@ -19,7 +19,7 @@ import (
 
 // Winter contains configuration
 type Winter struct {
-	venues []venue.Winter
+	venues map[string]*venue.Winter
 	config *config.Config
 }
 
@@ -98,6 +98,7 @@ func LoadVenue(name string) error {
 	}
 
 	exch.SetDefaults()
+	winter.venues[name] = &exch
 	exch.Setup(name, winter.config.Venues[name])
 	exch.Start()
 
