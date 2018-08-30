@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/maurodelazeri/lion/postgres"
@@ -30,16 +29,6 @@ type VenueConfig struct {
 	StepSize             float64 `db:"step_size"`
 	MakerFee             float64 `db:"maker_fee"`
 	TakerFee             float64 `db:"taker_fee"`
-}
-
-// GetVenueConfig returns your venue configurations by its indivdual name
-func (c *Config) GetVenueConfig(name string) (map[string]VenueConfig, error) {
-	for i := range c.Venues[name] {
-		if i == name {
-			return c.Venues[name], nil
-		}
-	}
-	return map[string]VenueConfig{}, fmt.Errorf("Venue %s: Not found", name)
 }
 
 // LoadConfig loads your configuration file into your configuration object
