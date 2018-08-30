@@ -13,6 +13,7 @@ import (
 
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
+	"github.com/maurodelazeri/winter/venues/coinbase"
 	"github.com/sirupsen/logrus"
 )
 
@@ -88,24 +89,22 @@ func LoadVenue(name string) error {
 	// case "coinbase":
 	// 	exch = new(coinbase.Coinbase)
 	case "COINBASEPRO":
-		logrus.Info("YEAAA BABAY ", exch)
+		exch = new(coinbase.Coinbase)
 	default:
-		return errors.New("venue not found")
+		return errors.New("venue " + name + " not found")
 	}
 
 	if exch == nil {
 		return errors.New("venue failed to load")
 	}
 
-	// exch.SetDefaults()
-	// winter.venues = append(winter.venues, exch)
-	// exchCfg, err := winter.config.GetVenueConfig(name)
-	// if err != nil {
-	// 	return err
-	// }
-	// exchCfg.Enabled = true
-	// exch.Setup(exchCfg)
-	// exch.Start()
+	exch.SetDefaults()
+	exchCfg, err := winter.config.GetVenueConfig(name)
+	if err != nil {
+		return err
+	}
+	exch.Setup(name, exchCfg)
+	exch.Start()
 
 	return nil
 }

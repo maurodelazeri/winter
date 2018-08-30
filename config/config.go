@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/maurodelazeri/lion/postgres"
-	"github.com/sirupsen/logrus"
 )
 
 // Cfg stores a config
@@ -55,6 +54,5 @@ func (c *Config) LoadConfig() error {
 	for _, p := range venues {
 		c.Venues[p.Name][p.Product] = p
 	}
-	logrus.Info(c.Venues)
 	return nil
 }

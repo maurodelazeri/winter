@@ -10,19 +10,15 @@ import (
 
 // Base stores the individual venue information
 type Base struct {
-	Name                 string
-	Enabled              bool
-	Verbose              bool
-	WebsocketDedicated   []string
-	VenueEnabledPairs []string
-	KafkaPartition       int32
-	APIEnabledPairs      []string
-	WebsocketURL         string
+	Name    string
+	Verbose bool
+	Enabled bool
+	Pairs   map[string]config.VenueConfig
 }
 
 // Winter enforces standard functions for all venues supported in
 type Winter interface {
-	Setup(exch config.VenueConfig)
+	Setup(venue string, exch map[string]config.VenueConfig)
 	SetDefaults()
 	Start()
 	GetName() string

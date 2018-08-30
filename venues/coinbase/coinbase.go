@@ -12,20 +12,17 @@ import (
 	venue "github.com/maurodelazeri/winter/venues"
 )
 
+const websocketURL = "wss://ws-feed.pro.coinbase.com"
+
 // Coinbase internals
 type Coinbase struct {
 	venue.Base
-	Name         string
-	Enabled      bool
-	Verbose      bool
 	natsProducer *natsproducer.Producer
 }
 
 // WebsocketCoinbase is the overarching type across the Coinbase package
 type WebsocketCoinbase struct {
-	base            *Coinbase
-	subscribedPairs []string
-
+	base        *Coinbase
 	nonce       int64
 	isConnected bool
 	mu          sync.Mutex
@@ -48,45 +45,39 @@ type WebsocketCoinbase struct {
 	// default to 2 seconds
 	HandshakeTimeout time.Duration
 
-	OrderBookMAP  map[string]map[float64]float64
-	LiveOrderBook map[string]pbmarket.Orderbook
+	OrderBookMAP    map[string]map[float64]float64
+	LiveOrderBook   map[string]pbmarket.Orderbook
+	subscribedPairs []string
+	pairsMapping    map[string]string
 
 	MessageType []byte
 }
 
 // SetDefaults sets default values for the venue
 func (r *Coinbase) SetDefaults() {
-	r.Name = "coinbase"
+	r.Enabled = true
 }
 
 // Setup initialises the venue parameters with the current configuration
-func (r *Coinbase) Setup(exch config.VenueConfig) {
-	if !exch.Enabled {
-		r.SetEnabled(false)
-	} else {
-		r.Enabled = true
-		r.Verbose = exch.Verbose
-		r.APIEnabledPairs = exch.APIEnabledPairs
-		r.VenueEnabledPairs = exch.VenueEnabledPairs
-		r.WebsocketDedicated = exch.WebsocketDedicated
-		r.KafkaPartition = exch.KafkaPartition
-		producer := new(natsproducer.Producer)
-		producer.Initialize()
-		r.natsProducer = producer
-	}
+func (r *Coinbase) Setup(venue string, products map[string]config.VenueConfig) {
+	r.Name = venue
+	r.Pairs = products
+
+	producer := new(natsproducer.Producer)
+	producer.Initialize()
+	r.natsProducer = producer
 }
 
 // Start ...
 func (r *Coinbase) Start() {
-	r.WebsocketURL = "wss://ws-feed.pro.coinbase.com"
 
 	var dedicatedSocket, sharedSocket []string
-	for _, pair := range r.VenueEnabledPairs {
-		_, exist := r.StringInSlice(pair, r.WebsocketDedicated)
-		if exist {
-			dedicatedSocket = append(dedicatedSocket, pair)
+
+	for key, value := range r.Pairs {
+		if value.IndividualConnection {
+			dedicatedSocket = append(dedicatedSocket, key)
 		} else {
-			sharedSocket = append(sharedSocket, pair)
+			sharedSocket = append(sharedSocket, key)
 		}
 	}
 
