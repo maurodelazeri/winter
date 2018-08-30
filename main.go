@@ -35,7 +35,6 @@ const banner = `
 var winter Winter
 
 func main() {
-
 	HandleInterrupt()
 
 	fmt.Println(banner)
@@ -99,11 +98,7 @@ func LoadVenue(name string) error {
 	}
 
 	exch.SetDefaults()
-	exchCfg, err := winter.config.GetVenueConfig(name)
-	if err != nil {
-		return err
-	}
-	exch.Setup(name, exchCfg)
+	exch.Setup(name, winter.config.Venues[name])
 	exch.Start()
 
 	return nil

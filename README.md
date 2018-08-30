@@ -3,7 +3,7 @@
 Streaming data from venues to nats pipeline
 
 ```
-iexport STREAMING_SERVER="nats://192.168.3.100:4222"
+export STREAMING_SERVER="nats://127.0.0.1:4222"
 export KAFKA_BROKERS="192.168.3.100:9092"
 
 export PSQL_USER="postgres"
