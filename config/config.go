@@ -34,7 +34,7 @@ type VenueConfig struct {
 // LoadConfig loads your configuration file into your configuration object
 func (c *Config) LoadConfig() error {
 	venues := []VenueConfig{}
-	if err := postgres.DB.Select(&venues, "SELECT v.venue_id,v.name,v.enabled,v.api_key,v.api_secret,v.passphrase,p.individual_connection,p.product,p.venue_product,p.minimum_order_size,p.step_size,p.maker_fee,p.taker_fee FROM venues v, venues_products p WHERE v.venue_id=p.venue_id"); err != nil {
+	if err := postgres.PostgresDB.Select(&venues, "SELECT v.venue_id,v.name,v.enabled,v.api_key,v.api_secret,v.passphrase,p.individual_connection,p.product,p.venue_product,p.minimum_order_size,p.step_size,p.maker_fee,p.taker_fee FROM venues v, venues_products p WHERE v.venue_id=p.venue_id"); err != nil {
 		log.Fatal(err)
 	}
 	for _, p := range venues {
