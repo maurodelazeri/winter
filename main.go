@@ -9,18 +9,29 @@ import (
 	"os/signal"
 	"runtime"
 	"strconv"
+	"sync"
 	"syscall"
 
+	"github.com/maurodelazeri/lion/common"
+	"github.com/maurodelazeri/lion/streaming/kafka/producer"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
 	"github.com/maurodelazeri/winter/venues/coinbase"
+	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
 )
 
 // Winter contains configuration
 type Winter struct {
-	venues map[string]*venue.Winter
-	config *config.Config
+	waitGroup sync.WaitGroup
+	venues    map[string]venue.Winter
+	config    *config.Config
+}
+
+type appInit struct {
+	Application string `json:"application,omitempty"`
+	Hostname    string `json:"hostname,omitempty"`
+	Timestamp   int64  `json:"timestamp,omitempty"`
 }
 
 const banner = `
@@ -35,6 +46,7 @@ const banner = `
 var winter Winter
 
 func main() {
+
 	HandleInterrupt()
 
 	fmt.Println(banner)
@@ -53,9 +65,29 @@ func main() {
 		log.Fatal(err)
 	}
 
+	logrus.Infof("Venues setup")
+	winter.venues = make(map[string]venue.Winter)
 	SetupVenues()
 
-	logrus.Infof("Winter started.\n")
+	// logrus.Infof("GRPC setup...")
+	// go SetupGrpcServer()
+
+	winter.waitGroup.Wait()
+
+	logrus.Infof("Registering winter on kafka")
+	hostname, _ := os.Hostname()
+	appRegister, _ := ffjson.Marshal(&appInit{
+		Application: "winter",
+		Hostname:    hostname,
+		Timestamp:   common.MakeTimestamp(),
+	})
+	err = kafkaproducer.PublishMessageAsync("applications", appRegister, int32(0), true)
+	if err != nil {
+		log.Fatal(err)
+	}
+	logrus.Infof("Kafka is ready")
+
+	logrus.Infof("Winter started \n")
 
 	<-cancelContext.Done()
 	fmt.Println("The cancel context has been cancelled...")
@@ -71,9 +103,22 @@ func SetupVenues() {
 			log.Printf("LoadVenue %s failed: %s", x, err)
 			continue
 		}
-
 	}
 }
+
+// SetupGrpcServer sets up the gRPC server
+// func SetupGrpcServer() {
+// 	lis, err := net.Listen("tcp", os.Getenv("GRPC_SERVER_PORT"))
+// 	if err != nil {
+// 		log.Fatalf("failed to listen: %v", err)
+// 	}
+// 	// Creates a new gRPC server
+// 	s := grpc.NewServer()
+// 	pb.RegisterAPIServer(s, &Winter{})
+
+// 	winter.waitGroup.Done()
+// 	s.Serve(lis)
+// }
 
 // LoadVenue loads an venue by name
 func LoadVenue(name string) error {
@@ -98,7 +143,7 @@ func LoadVenue(name string) error {
 	}
 
 	exch.SetDefaults()
-	winter.venues[name] = &exch
+	winter.venues[name] = exch
 	exch.Setup(name, winter.config.Venues[name])
 	exch.Start()
 
@@ -139,9 +184,9 @@ func HandleInterrupt() {
 	}()
 }
 
-// Shutdown correctly shuts down winter saving configuration files
+// Shutdown correctly
 func Shutdown() {
 	logrus.Info("Winter shutting down..")
-	logrus.Info("Exiting.")
+	logrus.Info("Exiting")
 	os.Exit(1)
 }

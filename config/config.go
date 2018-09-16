@@ -25,7 +25,7 @@ type VenueConfig struct {
 	IndividualConnection bool    `db:"individual_connection"`
 	Product              string  `db:"product"`
 	VenueProduct         string  `db:"venue_product"`
-	MinimumOrderSize     float64 `db:"minimum_order_size"`
+	MinimumOrdersSize    float64 `db:"minimum_orders_size"`
 	StepSize             float64 `db:"step_size"`
 	MakerFee             float64 `db:"maker_fee"`
 	TakerFee             float64 `db:"taker_fee"`
@@ -34,7 +34,7 @@ type VenueConfig struct {
 // LoadConfig loads your configuration file into your configuration object
 func (c *Config) LoadConfig() error {
 	venues := []VenueConfig{}
-	if err := postgres.PostgresDB.Select(&venues, "SELECT v.venue_id,v.name,v.enabled,v.api_key,v.api_secret,v.passphrase,p.individual_connection,p.product,p.venue_product,p.minimum_order_size,p.step_size,p.maker_fee,p.taker_fee FROM venues v, venues_products p WHERE v.venue_id=p.venue_id"); err != nil {
+	if err := postgres.PostgresDB.Select(&venues, "SELECT v.venue_id,v.name,p.venue_product,pp.name as product,v.enabled,v.api_key,v.api_secret,v.passphrase, p.individual_connection,p.minimum_orders_size,p.step_size, p.maker_fee,p.taker_fee FROM venue v, venue_product p , product pp WHERE v.venue_id=p.venue_id AND pp.product_id=p.product_id"); err != nil {
 		log.Fatal(err)
 	}
 	for _, p := range venues {
