@@ -3,7 +3,6 @@ package coinbase
 import (
 	//"encoding/json"
 
-	"encoding/json"
 	"errors"
 	"log"
 	"math/rand"
@@ -336,9 +335,6 @@ func (r *WebsocketCoinbase) startReading() {
 								Size:      data.Price,
 								VenueType: pbMarket.VenueType_SPOT,
 							}
-
-							mauro, _ := json.Marshal(trades)
-							logrus.Info(string(mauro), "\n", string(resp))
 
 							serialized, err := proto.Marshal(trades)
 							if err != nil {
