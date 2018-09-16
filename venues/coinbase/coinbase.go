@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/gorilla/websocket"
 	pbmarket "github.com/maurodelazeri/lion/protobuf/marketdata"
-	"github.com/maurodelazeri/lion/streaming/nats/producer"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
 )
@@ -17,7 +17,7 @@ const websocketURL = "wss://ws-feed.pro.coinbase.com"
 // Coinbase internals
 type Coinbase struct {
 	venue.Base
-	natsProducer *natsproducer.Producer
+	kafkaProducer *kafka.Producer
 }
 
 // WebsocketCoinbase is the overarching type across the Coinbase package
@@ -62,10 +62,6 @@ func (r *Coinbase) SetDefaults() {
 func (r *Coinbase) Setup(venue string, products map[string]config.VenueConfig) {
 	r.Name = venue
 	r.Pairs = products
-
-	producer := new(natsproducer.Producer)
-	producer.Initialize()
-	r.natsProducer = producer
 }
 
 // Start ...

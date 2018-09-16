@@ -16,6 +16,7 @@ import (
 	"github.com/jpillora/backoff"
 	"github.com/maurodelazeri/lion/common"
 	pbmarket "github.com/maurodelazeri/lion/protobuf/marketdata"
+	"github.com/maurodelazeri/lion/streaming/kafka/producer"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
 )
@@ -312,7 +313,7 @@ func (r *WebsocketCoinbase) startReading() {
 							}
 							r.MessageType[0] = 2
 							serialized = append(r.MessageType, serialized[:]...)
-							r.base.natsProducer.PublishMessage(product+"."+r.base.Name+".orderbook", serialized)
+							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".orderbook", serialized, 1, false)
 							//	elapsed := time.Since(start)
 							//	logrus.Info("Done nats ", elapsed)
 						}
@@ -338,7 +339,7 @@ func (r *WebsocketCoinbase) startReading() {
 							}
 							r.MessageType[0] = 1
 							serialized = append(r.MessageType, serialized[:]...)
-							r.base.natsProducer.PublishMessage(product+"."+r.base.Name+".trade", serialized)
+							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".trade", serialized, 1, false)
 						}
 
 						if data.Type == "ticker" {
@@ -363,7 +364,7 @@ func (r *WebsocketCoinbase) startReading() {
 							}
 							r.MessageType[0] = 0
 							serialized = append(r.MessageType, serialized[:]...)
-							r.base.natsProducer.PublishMessage(product+"."+r.base.Name+".tick", serialized)
+							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".tick", serialized, 1, false)
 						}
 
 						if data.Type == "snapshot" {
