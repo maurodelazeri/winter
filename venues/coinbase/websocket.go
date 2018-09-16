@@ -3,6 +3,7 @@ package coinbase
 import (
 	//"encoding/json"
 
+	"encoding/json"
 	"errors"
 	"log"
 	"math/rand"
@@ -311,8 +312,8 @@ func (r *WebsocketCoinbase) startReading() {
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							r.MessageType[0] = 2
-							serialized = append(r.MessageType, serialized[:]...)
+							//r.MessageType[0] = 2
+							//serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".orderbook", serialized, 1, false)
 							//	elapsed := time.Since(start)
 							//	logrus.Info("Done nats ", elapsed)
@@ -320,11 +321,13 @@ func (r *WebsocketCoinbase) startReading() {
 
 						if data.Type == "match" {
 							var side pbMarket.OrderType
+
 							if data.Side == "buy" {
 								side = pbMarket.OrderType_BUY
 							} else {
 								side = pbMarket.OrderType_SELL
 							}
+
 							trades := &pbMarket.Trade{
 								Product:   pbMarket.Product((pbMarket.Product_value[product])),
 								Timestamp: uint64(r.base.MakeTimestamp()),
@@ -333,12 +336,16 @@ func (r *WebsocketCoinbase) startReading() {
 								Size:      data.Price,
 								VenueType: pbMarket.VenueType_SPOT,
 							}
+
+							mauro, _ := json.Marshal(trades)
+							logrus.Info(string(mauro), "\n", string(resp))
+
 							serialized, err := proto.Marshal(trades)
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							r.MessageType[0] = 1
-							serialized = append(r.MessageType, serialized[:]...)
+							//r.MessageType[0] = 1
+							//serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".trade", serialized, 1, false)
 						}
 
@@ -362,8 +369,8 @@ func (r *WebsocketCoinbase) startReading() {
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							r.MessageType[0] = 0
-							serialized = append(r.MessageType, serialized[:]...)
+							//r.MessageType[0] = 0
+							//serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".tick", serialized, 1, false)
 						}
 
