@@ -14,9 +14,8 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/backoff"
-	"github.com/maurodelazeri/lion/candle"
 	"github.com/maurodelazeri/lion/common"
-	pbMarket "github.com/maurodelazeri/lion/protobuf/marketdata"
+	pbAPI "github.com/maurodelazeri/lion/protobuf/api"
 	"github.com/maurodelazeri/lion/streaming/kafka/producer"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
@@ -144,13 +143,13 @@ func (r *WebsocketCoinbase) connect() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	r.OrderBookMAP = make(map[string]map[float64]float64)
-	r.LiveOrderBook = make(map[string]pbMarket.Orderbook)
+	r.LiveOrderBook = make(map[string]pbAPI.Orderbook)
 	r.pairsMapping = make(map[string]string)
 
 	venueArrayPairs := []string{}
 
 	for _, sym := range r.subscribedPairs {
-		r.LiveOrderBook[sym] = pbMarket.Orderbook{}
+		r.LiveOrderBook[sym] = pbAPI.Orderbook{}
 		r.OrderBookMAP[sym+"bids"] = make(map[float64]float64)
 		r.OrderBookMAP[sym+"asks"] = make(map[float64]float64)
 		venueArrayPairs = append(venueArrayPairs, r.base.Pairs[sym].VenueProduct)
@@ -197,12 +196,6 @@ func (r *WebsocketCoinbase) connect() {
 // https://github.com/json-iterator/go
 // I'm NOT USING THE json/encode due the lack of performance library currently in use json-iterator
 func (r *WebsocketCoinbase) startReading() {
-	mauro := new(candle.Bucket)
-	mauro.NumMaxCandles = 0
-	mauro.DurationCandle = time.Minute
-	//mauro.Product = pbMarket.Product_BTC_USD
-	//mauro.Venue = pbCandle.Venue_COINBASEPRO
-
 	go func() {
 		for {
 			select {
@@ -262,9 +255,9 @@ func (r *WebsocketCoinbase) startReading() {
 
 							wg.Add(1)
 							go func() {
-								refLiveBook.Bids = []*pbMarket.Item{}
+								refLiveBook.Bids = []*pbAPI.Item{}
 								for price, amount := range r.OrderBookMAP[product+"bids"] {
-									refLiveBook.Bids = append(refLiveBook.Bids, &pbMarket.Item{Price: price, Amount: amount})
+									refLiveBook.Bids = append(refLiveBook.Bids, &pbAPI.Item{Price: price, Amount: amount})
 								}
 								sort.Slice(refLiveBook.Bids, func(i, j int) bool {
 									return refLiveBook.Bids[i].Price > refLiveBook.Bids[j].Price
@@ -274,9 +267,9 @@ func (r *WebsocketCoinbase) startReading() {
 
 							wg.Add(1)
 							go func() {
-								refLiveBook.Asks = []*pbMarket.Item{}
+								refLiveBook.Asks = []*pbAPI.Item{}
 								for price, amount := range r.OrderBookMAP[product+"asks"] {
-									refLiveBook.Asks = append(refLiveBook.Asks, &pbMarket.Item{Price: price, Amount: amount})
+									refLiveBook.Asks = append(refLiveBook.Asks, &pbAPI.Item{Price: price, Amount: amount})
 								}
 								sort.Slice(refLiveBook.Asks, func(i, j int) bool {
 									return refLiveBook.Asks[i].Price < refLiveBook.Asks[j].Price
@@ -306,13 +299,13 @@ func (r *WebsocketCoinbase) startReading() {
 							wg.Wait()
 							(*liveBookMemomory)[product] = refLiveBook
 
-							book := &pbMarket.Orderbook{
-								Product:   pbMarket.Product((pbMarket.Product_value[product])),
+							book := &pbAPI.Orderbook{
+								Product:   pbAPI.Product((pbAPI.Product_value[product])),
 								Levels:    20,
 								Timestamp: uint64(r.base.MakeTimestamp()),
 								Asks:      (*liveBookMemomory)[product].Asks,
 								Bids:      (*liveBookMemomory)[product].Bids,
-								VenueType: pbMarket.VenueType_SPOT,
+								VenueType: pbAPI.VenueType_SPOT,
 							}
 							serialized, err := proto.Marshal(book)
 							if err != nil {
@@ -326,31 +319,21 @@ func (r *WebsocketCoinbase) startReading() {
 						}
 
 						if data.Type == "match" {
-							var side pbMarket.OrderType
+							var side pbAPI.OrderType
 
 							if data.Side == "buy" {
-								side = pbMarket.OrderType_BUY
+								side = pbAPI.OrderType_BUY
 							} else {
-								side = pbMarket.OrderType_SELL
+								side = pbAPI.OrderType_SELL
 							}
 
-							if pbMarket.Product((pbMarket.Product_value[product])) == pbMarket.Product_BTC_USD {
-								result := mauro.CandleByDuration(candle.OHLCMessage{
-									Price: data.Price,
-									Size:  data.Size,
-									//OrderType: side,
-									Time: time.Unix(0, int64(r.base.MakeTimestamp())*int64(time.Microsecond)),
-								})
-								logrus.Info("Candle: ", result)
-							}
-
-							trades := &pbMarket.Trade{
-								Product:   pbMarket.Product((pbMarket.Product_value[product])),
+							trades := &pbAPI.Trade{
+								Product:   pbAPI.Product((pbAPI.Product_value[product])),
 								Timestamp: uint64(r.base.MakeTimestamp()),
 								Price:     data.Price,
 								OrderSide: side,
 								Size:      data.Size,
-								VenueType: pbMarket.VenueType_SPOT,
+								VenueType: pbAPI.VenueType_SPOT,
 							}
 
 							serialized, err := proto.Marshal(trades)
@@ -363,20 +346,20 @@ func (r *WebsocketCoinbase) startReading() {
 						}
 
 						if data.Type == "ticker" {
-							var side pbMarket.OrderType
+							var side pbAPI.OrderType
 							if data.Side == "buy" {
-								side = pbMarket.OrderType_BUY
+								side = pbAPI.OrderType_BUY
 							} else {
-								side = pbMarket.OrderType_SELL
+								side = pbAPI.OrderType_SELL
 							}
-							ticker := &pbMarket.Ticker{
-								Product:   pbMarket.Product((pbMarket.Product_value[product])),
+							ticker := &pbAPI.Ticker{
+								Product:   pbAPI.Product((pbAPI.Product_value[product])),
 								Timestamp: uint64(r.base.MakeTimestamp()),
 								Price:     data.Price,
 								OrderSide: side,
 								BestBid:   data.BestBid,
 								BestAsk:   data.BestAsk,
-								VenueType: pbMarket.VenueType_SPOT,
+								VenueType: pbAPI.VenueType_SPOT,
 							}
 							serialized, err := proto.Marshal(ticker)
 							if err != nil {
@@ -402,7 +385,7 @@ func (r *WebsocketCoinbase) startReading() {
 									if total > 20 {
 										continue
 									}
-									refLiveBook.Asks = append(refLiveBook.Asks, &pbMarket.Item{Price: price, Amount: amount})
+									refLiveBook.Asks = append(refLiveBook.Asks, &pbAPI.Item{Price: price, Amount: amount})
 									r.OrderBookMAP[product+"bids"][price] = amount
 									total++
 								}
@@ -418,7 +401,7 @@ func (r *WebsocketCoinbase) startReading() {
 									if total > 20 {
 										continue
 									}
-									refLiveBook.Bids = append(refLiveBook.Bids, &pbMarket.Item{Price: price, Amount: amount})
+									refLiveBook.Bids = append(refLiveBook.Bids, &pbAPI.Item{Price: price, Amount: amount})
 									r.OrderBookMAP[product+"asks"][price] = amount
 									total++
 								}

@@ -7,7 +7,7 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/gorilla/websocket"
-	pbmarket "github.com/maurodelazeri/lion/protobuf/marketdata"
+	pbAPI "github.com/maurodelazeri/lion/protobuf/api"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
 )
@@ -46,7 +46,7 @@ type WebsocketCoinbase struct {
 	HandshakeTimeout time.Duration
 
 	OrderBookMAP    map[string]map[float64]float64
-	LiveOrderBook   map[string]pbmarket.Orderbook
+	LiveOrderBook   map[string]pbAPI.Orderbook
 	subscribedPairs []string
 	pairsMapping    map[string]string
 
