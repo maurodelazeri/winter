@@ -311,8 +311,8 @@ func (r *WebsocketCoinbase) startReading() {
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							//r.MessageType[0] = 2
-							//serialized = append(r.MessageType, serialized[:]...)
+							r.MessageType[0] = 2
+							serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".orderbook", serialized, 1, false)
 							//	elapsed := time.Since(start)
 							//	logrus.Info("Done nats ", elapsed)
@@ -340,8 +340,8 @@ func (r *WebsocketCoinbase) startReading() {
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							//r.MessageType[0] = 1
-							//serialized = append(r.MessageType, serialized[:]...)
+							r.MessageType[0] = 1
+							serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".trade", serialized, 1, false)
 						}
 
@@ -365,8 +365,8 @@ func (r *WebsocketCoinbase) startReading() {
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							//r.MessageType[0] = 0
-							//serialized = append(r.MessageType, serialized[:]...)
+							r.MessageType[0] = 0
+							serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".tick", serialized, 1, false)
 						}
 
