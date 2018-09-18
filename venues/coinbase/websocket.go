@@ -14,6 +14,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/backoff"
+	"github.com/maurodelazeri/lion/candle"
 	"github.com/maurodelazeri/lion/common"
 	pbMarket "github.com/maurodelazeri/lion/protobuf/marketdata"
 	"github.com/maurodelazeri/lion/streaming/kafka/producer"
@@ -196,6 +197,12 @@ func (r *WebsocketCoinbase) connect() {
 // https://github.com/json-iterator/go
 // I'm NOT USING THE json/encode due the lack of performance library currently in use json-iterator
 func (r *WebsocketCoinbase) startReading() {
+	mauro := new(candle.Bucket)
+	mauro.NumMaxCandles = 0
+	mauro.DurationCandle = time.Minute
+	//mauro.Product = pbMarket.Product_BTC_USD
+	//mauro.Venue = pbCandle.Venue_COINBASEPRO
+
 	go func() {
 		for {
 			select {
@@ -327,12 +334,22 @@ func (r *WebsocketCoinbase) startReading() {
 								side = pbMarket.OrderType_SELL
 							}
 
+							if pbMarket.Product((pbMarket.Product_value[product])) == pbMarket.Product_BTC_USD {
+								result := mauro.CandleByDuration(candle.OHLCMessage{
+									Price: data.Price,
+									Size:  data.Size,
+									//OrderType: side,
+									Time: time.Unix(0, int64(r.base.MakeTimestamp())*int64(time.Microsecond)),
+								})
+								logrus.Info("Candle: ", result)
+							}
+
 							trades := &pbMarket.Trade{
 								Product:   pbMarket.Product((pbMarket.Product_value[product])),
 								Timestamp: uint64(r.base.MakeTimestamp()),
 								Price:     data.Price,
 								OrderSide: side,
-								Size:      data.Price,
+								Size:      data.Size,
 								VenueType: pbMarket.VenueType_SPOT,
 							}
 
