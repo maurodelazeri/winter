@@ -312,7 +312,7 @@ func (r *WebsocketCoinbase) startReading() {
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							r.MessageType[0] = 2
+							r.MessageType[0] = 1
 							serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".orderbook", serialized, 1, false)
 							//	elapsed := time.Since(start)
@@ -342,35 +342,9 @@ func (r *WebsocketCoinbase) startReading() {
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							r.MessageType[0] = 1
-							serialized = append(r.MessageType, serialized[:]...)
-							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".trade", serialized, 1, false)
-						}
-
-						if data.Type == "ticker" {
-							var side pbAPI.OrderType
-							if data.Side == "buy" {
-								side = pbAPI.OrderType_BUY
-							} else {
-								side = pbAPI.OrderType_SELL
-							}
-							ticker := &pbAPI.Ticker{
-								Product:   pbAPI.Product((pbAPI.Product_value[product])),
-								Venue:     pbAPI.Venue((pbAPI.Venue_value[r.base.GetName()])),
-								Timestamp: uint64(r.base.MakeTimestamp()),
-								Price:     data.Price,
-								OrderSide: side,
-								BestBid:   data.BestBid,
-								BestAsk:   data.BestAsk,
-								VenueType: pbAPI.VenueType_SPOT,
-							}
-							serialized, err := proto.Marshal(ticker)
-							if err != nil {
-								log.Fatal("proto.Marshal error: ", err)
-							}
 							r.MessageType[0] = 0
 							serialized = append(r.MessageType, serialized[:]...)
-							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".tick", serialized, 1, false)
+							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".trade", serialized, 1, false)
 						}
 
 						if data.Type == "snapshot" {
