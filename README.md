@@ -5,6 +5,7 @@ Streaming data from venues to nats pipeline
 ```
 export KAFKA_BROKERS="192.168.3.100:9092"
 export INFLUX_UDP_ADDR="192.168.3.100:8089"
+export INFLUX_DATABASE="zinnion_streaming"
 
 export PSQL_USER="postgres"
 export PSQL_PASS="Br@sa154"
