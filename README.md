@@ -14,6 +14,9 @@ export KAFKA_BROKERS="127.0.0.1"
 export INFLUX_UDP_ADDR="127.0.0.1:8089"
 export INFLUX_DATABASE="zinnion_streaming"
 
+# NODE5
+export INFLUX_UDP_ADDR="192.168.1.39:8089"
+
 
 export PSQL_USER="postgres"
 export PSQL_PASS="Br@sa154"
