@@ -83,7 +83,7 @@ func (e *Base) FloatToString(number float64) string {
 
 // MakeTimestamp create standart timestamp
 func (e *Base) MakeTimestamp() int64 {
-	return time.Now().UnixNano() / int64(time.Microsecond)
+	return time.Now().UnixNano() / int64(time.Nanosecond)
 }
 
 // PercentChange gives the difference in percentage from 2 numbers
