@@ -24,8 +24,14 @@ import (
 // Winter contains configuration
 type Winter struct {
 	waitGroup sync.WaitGroup
-	venues    map[string]venue.Winter
+	venues    *WinterSyncMapConfig
 	config    *config.Config
+}
+
+// WinterSyncMapConfig ...
+type WinterSyncMapConfig struct {
+	state map[string]venue.Winter
+	mutex *sync.Mutex
 }
 
 type appInit struct {
@@ -66,7 +72,7 @@ func main() {
 	}
 
 	logrus.Infof("Venues setup")
-	winter.venues = make(map[string]venue.Winter)
+	winter.venues = NewWinterSyncMapConfig()
 	SetupVenues()
 
 	// logrus.Infof("GRPC setup...")
@@ -143,7 +149,7 @@ func LoadVenue(name string) error {
 	}
 
 	exch.SetDefaults()
-	winter.venues[name] = exch
+	winter.venues.Put(name, exch)
 	exch.Setup(name, winter.config.Venues[name])
 	exch.Start()
 
@@ -189,4 +195,39 @@ func Shutdown() {
 	logrus.Info("Winter shutting down..")
 	logrus.Info("Exiting")
 	os.Exit(1)
+}
+
+// NewWinterSyncMapConfig ...
+func NewWinterSyncMapConfig() *WinterSyncMapConfig {
+	s := &WinterSyncMapConfig{
+		state: make(map[string]venue.Winter),
+		mutex: &sync.Mutex{},
+	}
+	return s
+}
+
+// Put ...
+func (s *WinterSyncMapConfig) Put(key string, value venue.Winter) {
+	s.mutex.Lock()
+	s.state[key] = value
+	s.mutex.Unlock()
+}
+
+// Get ...
+func (s *WinterSyncMapConfig) Get(key string) venue.Winter {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	return s.state[key]
+}
+
+// Values ...
+func (s *WinterSyncMapConfig) Values() chan venue.Winter {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+	values := make(chan venue.Winter, len(s.state))
+	for _, value := range s.state {
+		values <- value
+	}
+	close(values)
+	return values
 }
