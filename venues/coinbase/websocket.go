@@ -153,8 +153,8 @@ func (r *WebsocketCoinbase) connect() {
 		r.LiveOrderBook[sym] = pbAPI.Orderbook{}
 		r.OrderBookMAP[sym+"bids"] = make(map[float64]float64)
 		r.OrderBookMAP[sym+"asks"] = make(map[float64]float64)
-		venueArrayPairs = append(venueArrayPairs, r.base.Pairs[sym].VenueProduct)
-		r.pairsMapping[r.base.Pairs[sym].VenueProduct] = sym
+		venueArrayPairs = append(venueArrayPairs, r.base.VenueConfig.Get(r.base.GetName()).Products[sym].VenueName)
+		r.pairsMapping[r.base.VenueConfig.Get(r.base.GetName()).Products[sym].VenueName] = sym
 	}
 
 	for {
@@ -321,12 +321,12 @@ func (r *WebsocketCoinbase) startReading() {
 						}
 
 						if data.Type == "match" {
-							var side pbAPI.OrderType
+							var side pbAPI.Side
 
 							if data.Side == "buy" {
-								side = pbAPI.OrderType_BUY
+								side = pbAPI.Side_BUY
 							} else {
-								side = pbAPI.OrderType_SELL
+								side = pbAPI.Side_SELL
 							}
 
 							trades := &pbAPI.Trade{

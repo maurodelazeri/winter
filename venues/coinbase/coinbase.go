@@ -5,11 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/gorilla/websocket"
+	"github.com/maurodelazeri/elliptor/config"
+	venue "github.com/maurodelazeri/elliptor/venues"
+	"github.com/maurodelazeri/lion/orderbook"
 	pbAPI "github.com/maurodelazeri/lion/protobuf/api"
-	"github.com/maurodelazeri/winter/config"
-	venue "github.com/maurodelazeri/winter/venues"
 )
 
 const websocketURL = "wss://ws-feed.pro.coinbase.com"
@@ -17,7 +17,7 @@ const websocketURL = "wss://ws-feed.pro.coinbase.com"
 // Coinbase internals
 type Coinbase struct {
 	venue.Base
-	kafkaProducer *kafka.Producer
+	//	mutex sync.RWMutex
 }
 
 // WebsocketCoinbase is the overarching type across the Coinbase package
@@ -49,8 +49,7 @@ type WebsocketCoinbase struct {
 	LiveOrderBook   map[string]pbAPI.Orderbook
 	subscribedPairs []string
 	pairsMapping    map[string]string
-
-	MessageType []byte
+	MessageType     []byte
 }
 
 // SetDefaults sets default values for the venue
@@ -59,22 +58,29 @@ func (r *Coinbase) SetDefaults() {
 }
 
 // Setup initialises the venue parameters with the current configuration
-func (r *Coinbase) Setup(venue string, products map[string]config.VenueConfig) {
-	r.Name = venue
-	r.Pairs = products
+func (r *Coinbase) Setup(venueName string, config config.VenueConfig) {
+	r.Name = venueName
+	r.VenueConfig = venue.NewInternals()
+	r.VenueConfig.Put(venueName, config)
 }
 
 // Start ...
 func (r *Coinbase) Start() {
-
 	var dedicatedSocket, sharedSocket []string
+	// Individual system order book for each product
+	r.SystemOrderbook = make(map[string]*orderbook.OrderBook)
 
-	for key, value := range r.Pairs {
+	for product, value := range r.VenueConfig.Get(r.Name).Products {
+
+		r.SystemOrderbook[product] = orderbook.NewOrderBook()
+
+		// Separate products that will use a exclusive connection from those sharing a connection
 		if value.IndividualConnection {
-			dedicatedSocket = append(dedicatedSocket, key)
+			dedicatedSocket = append(dedicatedSocket, product)
 		} else {
-			sharedSocket = append(sharedSocket, key)
+			sharedSocket = append(sharedSocket, product)
 		}
+
 	}
 
 	if len(dedicatedSocket) > 0 {
