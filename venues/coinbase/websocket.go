@@ -236,6 +236,13 @@ func (r *WebsocketCoinbase) startReading() {
 									} else {
 										price := r.base.Strfloat(data[1])
 										amount := r.base.Strfloat(data[2])
+										// ignore updates > than the current r.MaxLevelsOrderBook levels we manage
+										totalLevels := len(refLiveBook.GetBids())
+										if totalLevels == r.MaxLevelsOrderBook {
+											if refLiveBook.Bids[totalLevels-1].Price > price {
+												continue
+											}
+										}
 										r.OrderBookMAP[product+"bids"][price] = amount
 									}
 								case "sell":
@@ -245,8 +252,15 @@ func (r *WebsocketCoinbase) startReading() {
 											delete(r.OrderBookMAP[product+"asks"], price)
 										}
 									} else {
+										// ignore updates > than the current r.MaxLevelsOrderBook levels we manage
 										price := r.base.Strfloat(data[1])
 										amount := r.base.Strfloat(data[2])
+										totalLevels := len(refLiveBook.GetAsks())
+										if totalLevels == r.MaxLevelsOrderBook {
+											if refLiveBook.Asks[totalLevels-1].Price > price {
+												continue
+											}
+										}
 										r.OrderBookMAP[product+"asks"][price] = amount
 									}
 								default:
@@ -283,16 +297,16 @@ func (r *WebsocketCoinbase) startReading() {
 							wg.Add(1)
 							go func() {
 								totalBids := len(refLiveBook.Bids)
-								if totalBids > 20 {
-									refLiveBook.Bids = refLiveBook.Bids[0:20]
+								if totalBids > r.MaxLevelsOrderBook {
+									refLiveBook.Bids = refLiveBook.Bids[0:r.MaxLevelsOrderBook]
 								}
 								wg.Done()
 							}()
 							wg.Add(1)
 							go func() {
 								totalAsks := len(refLiveBook.Asks)
-								if totalAsks > 20 {
-									refLiveBook.Asks = refLiveBook.Asks[0:20]
+								if totalAsks > r.MaxLevelsOrderBook {
+									refLiveBook.Asks = refLiveBook.Asks[0:r.MaxLevelsOrderBook]
 								}
 								wg.Done()
 							}()
@@ -303,7 +317,7 @@ func (r *WebsocketCoinbase) startReading() {
 							book := &pbAPI.Orderbook{
 								Product:   pbAPI.Product((pbAPI.Product_value[product])),
 								Venue:     pbAPI.Venue((pbAPI.Venue_value[r.base.GetName()])),
-								Levels:    20,
+								Levels:    int32(r.MaxLevelsOrderBook),
 								Timestamp: r.base.MakeTimestamp(),
 								Asks:      (*liveBookMemomory)[product].Asks,
 								Bids:      (*liveBookMemomory)[product].Bids,
@@ -361,7 +375,7 @@ func (r *WebsocketCoinbase) startReading() {
 								for _, line := range arr {
 									price := r.base.Strfloat(line[0])
 									amount := r.base.Strfloat(line[1])
-									if total > 20 {
+									if total > r.MaxLevelsOrderBook {
 										continue
 									}
 									refLiveBook.Asks = append(refLiveBook.Asks, &pbAPI.Item{Price: price, Amount: amount})
@@ -377,7 +391,7 @@ func (r *WebsocketCoinbase) startReading() {
 								for _, line := range arr {
 									price := r.base.Strfloat(line[0])
 									amount := r.base.Strfloat(line[1])
-									if total > 20 {
+									if total > r.MaxLevelsOrderBook {
 										continue
 									}
 									refLiveBook.Bids = append(refLiveBook.Bids, &pbAPI.Item{Price: price, Amount: amount})

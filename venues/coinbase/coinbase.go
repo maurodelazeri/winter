@@ -45,11 +45,12 @@ type WebsocketCoinbase struct {
 	// default to 2 seconds
 	HandshakeTimeout time.Duration
 
-	OrderBookMAP    map[string]map[float64]float64
-	LiveOrderBook   map[string]pbAPI.Orderbook
-	subscribedPairs []string
-	pairsMapping    map[string]string
-	MessageType     []byte
+	OrderBookMAP       map[string]map[float64]float64
+	LiveOrderBook      map[string]pbAPI.Orderbook
+	subscribedPairs    []string
+	pairsMapping       map[string]string
+	MessageType        []byte
+	MaxLevelsOrderBook int
 }
 
 // SetDefaults sets default values for the venue
@@ -89,6 +90,7 @@ func (r *Coinbase) Start() {
 			socket.base = r
 			socket.subscribedPairs = append(socket.subscribedPairs, pair)
 			socket.MessageType = make([]byte, 4)
+			socket.MaxLevelsOrderBook = 20
 			go socket.WebsocketClient()
 		}
 	}
@@ -98,6 +100,7 @@ func (r *Coinbase) Start() {
 		socket.base = r
 		socket.subscribedPairs = sharedSocket
 		socket.MessageType = make([]byte, 4)
+		socket.MaxLevelsOrderBook = 20
 		go socket.WebsocketClient()
 	}
 }
