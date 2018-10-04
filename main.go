@@ -64,7 +64,7 @@ func main() {
 
 	winter.config = &config.Cfg
 	logrus.Infof("Loading venues and products...")
-	winter.config.Venues = make(map[string]map[string]config.VenueConfig)
+	winter.config.Venues = config.NewInternals()
 
 	err := winter.config.LoadConfig()
 	if err != nil {
@@ -103,10 +103,10 @@ func main() {
 
 // SetupVenues sets up the venues used by the westeros
 func SetupVenues() {
-	for x := range winter.config.Venues {
+	for x := range winter.config.Venues.Values() {
 		err := LoadVenue(x)
 		if err != nil {
-			log.Printf("LoadVenue %s failed: %s", x, err)
+			log.Printf("LoadVenue %s failed: %s", x.Name, err)
 			continue
 		}
 	}
@@ -127,9 +127,9 @@ func SetupVenues() {
 // }
 
 // LoadVenue loads an venue by name
-func LoadVenue(name string) error {
+func LoadVenue(conf config.VenueConfig) error {
 	var exch venue.Winter
-	switch name {
+	switch conf.Name {
 	// case "bitfinex":
 	// 	exch = new(bitfinex.Bitfinex)
 	// case "bitmex":
@@ -141,7 +141,7 @@ func LoadVenue(name string) error {
 	case "COINBASEPRO":
 		exch = new(coinbase.Coinbase)
 	default:
-		return errors.New("venue " + name + " not found")
+		return errors.New("venue " + conf.Name + " not found")
 	}
 
 	if exch == nil {
@@ -149,8 +149,8 @@ func LoadVenue(name string) error {
 	}
 
 	exch.SetDefaults()
-	winter.venues.Put(name, exch)
-	exch.Setup(name, winter.config.Venues[name])
+	winter.venues.Put(conf.Name, exch)
+	exch.Setup(conf.Name, winter.config.Venues.Get(conf.Name))
 	exch.Start()
 
 	return nil

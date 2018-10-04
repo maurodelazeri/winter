@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/maurodelazeri/elliptor/config"
-	venue "github.com/maurodelazeri/elliptor/venues"
 	"github.com/maurodelazeri/lion/orderbook"
 	pbAPI "github.com/maurodelazeri/lion/protobuf/api"
+	"github.com/maurodelazeri/winter/config"
+	venue "github.com/maurodelazeri/winter/venues"
 )
 
 const websocketURL = "wss://ws-feed.pro.coinbase.com"
@@ -86,7 +86,6 @@ func (r *Coinbase) Start() {
 	if len(dedicatedSocket) > 0 {
 		for _, pair := range dedicatedSocket {
 			socket := new(WebsocketCoinbase)
-			socket.MessageType = make([]byte, 4)
 			socket.base = r
 			socket.subscribedPairs = append(socket.subscribedPairs, pair)
 			go socket.WebsocketClient()
@@ -95,7 +94,6 @@ func (r *Coinbase) Start() {
 
 	if len(sharedSocket) > 0 {
 		socket := new(WebsocketCoinbase)
-		socket.MessageType = make([]byte, 4)
 		socket.base = r
 		socket.subscribedPairs = sharedSocket
 		go socket.WebsocketClient()

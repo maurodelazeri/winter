@@ -3,27 +3,71 @@ package venue
 import (
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
+	"github.com/maurodelazeri/lion/orderbook"
 	"github.com/maurodelazeri/winter/config"
 )
 
 // Base stores the individual venue information
 type Base struct {
-	Name    string
-	Verbose bool
-	Enabled bool
-	Pairs   map[string]config.VenueConfig
+	Name            string
+	Verbose         bool
+	Enabled         bool
+	SystemOrderbook map[string]*orderbook.OrderBook
+	VenueConfig     *Internals
+}
+
+// Internals ...
+type Internals struct {
+	state map[string]config.VenueConfig
+	mutex *sync.RWMutex
 }
 
 // Winter enforces standard functions for all venues supported in
 type Winter interface {
-	Setup(venue string, exch map[string]config.VenueConfig)
+	Setup(venue string, exch config.VenueConfig)
 	SetDefaults()
 	Start()
 	GetName() string
 	IsEnabled() bool
 	SetEnabled(bool)
+}
+
+// NewInternals ...
+func NewInternals() *Internals {
+	s := &Internals{
+		state: make(map[string]config.VenueConfig),
+		mutex: &sync.RWMutex{},
+	}
+	return s
+}
+
+// Put ...
+func (s *Internals) Put(key string, value config.VenueConfig) {
+	s.mutex.Lock()
+	s.state[key] = value
+	s.mutex.Unlock()
+}
+
+// Get ...
+func (s *Internals) Get(key string) config.VenueConfig {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+	return s.state[key]
+}
+
+// Values ...
+func (s *Internals) Values() chan config.VenueConfig {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+	values := make(chan config.VenueConfig, len(s.state))
+	for _, value := range s.state {
+		values <- value
+	}
+	close(values)
+	return values
 }
 
 // GetName is a method that returns the name of the venue base
