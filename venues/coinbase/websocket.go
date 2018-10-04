@@ -239,7 +239,7 @@ func (r *WebsocketCoinbase) startReading() {
 										// ignore updates > than the current r.MaxLevelsOrderBook levels we manage
 										totalLevels := len(refLiveBook.GetBids())
 										if totalLevels == r.MaxLevelsOrderBook {
-											if refLiveBook.Bids[totalLevels-1].Price > price {
+											if price < refLiveBook.Bids[totalLevels-1].Price {
 												continue
 											}
 										}
@@ -257,7 +257,7 @@ func (r *WebsocketCoinbase) startReading() {
 										amount := r.base.Strfloat(data[2])
 										totalLevels := len(refLiveBook.GetAsks())
 										if totalLevels == r.MaxLevelsOrderBook {
-											if refLiveBook.Asks[totalLevels-1].Price > price {
+											if price > refLiveBook.Asks[totalLevels-1].Price {
 												continue
 											}
 										}
@@ -326,6 +326,11 @@ func (r *WebsocketCoinbase) startReading() {
 							serialized, err := proto.Marshal(book)
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
+							}
+							if book.Product == pbAPI.Product_BTC_USD {
+								// elapsed := time.Since(start)
+								// logrus.Info("Done nats ", elapsed)
+								logrus.Info("BEST BID: ", book.Bids[0].Price, " Size: ", book.Bids[0].Amount, " Best Ask: ", book.Asks[0].Price, " Size: ", book.Asks[0].Amount)
 							}
 							r.MessageType[0] = 1
 							serialized = append(r.MessageType, serialized[:]...)
