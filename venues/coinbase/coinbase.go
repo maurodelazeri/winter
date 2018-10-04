@@ -88,6 +88,7 @@ func (r *Coinbase) Start() {
 			socket := new(WebsocketCoinbase)
 			socket.base = r
 			socket.subscribedPairs = append(socket.subscribedPairs, pair)
+			socket.MessageType = make([]byte, 4)
 			go socket.WebsocketClient()
 		}
 	}
@@ -96,6 +97,7 @@ func (r *Coinbase) Start() {
 		socket := new(WebsocketCoinbase)
 		socket.base = r
 		socket.subscribedPairs = sharedSocket
+		socket.MessageType = make([]byte, 4)
 		go socket.WebsocketClient()
 	}
 }
