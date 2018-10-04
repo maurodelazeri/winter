@@ -220,7 +220,7 @@ func (r *WebsocketCoinbase) startReading() {
 						product := r.pairsMapping[data.ProductID]
 
 						if data.Type == "l2update" {
-							start := time.Now()
+							//start := time.Now()
 							liveBookMemomory := &r.LiveOrderBook
 							refLiveBook := (*liveBookMemomory)[product]
 							var wg sync.WaitGroup
@@ -327,11 +327,12 @@ func (r *WebsocketCoinbase) startReading() {
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							if book.Product == pbAPI.Product_BTC_USD {
-								elapsed := time.Since(start)
-								// logrus.Info("Done nats ", elapsed)
-								logrus.Info("BEST BID: ", book.Bids[0].Price, " Size: ", book.Bids[0].Amount, " Best Ask: ", book.Asks[0].Price, " Size: ", book.Asks[0].Amount, " elapsed: ", elapsed)
-							}
+							// for testing
+							// if book.Product == pbAPI.Product_BTC_USD {
+							// 	elapsed := time.Since(start)
+							// 	// logrus.Info("Done nats ", elapsed)
+							// 	logrus.Info("BEST BID: ", book.Bids[0].Price, " Size: ", book.Bids[0].Amount, " Best Ask: ", book.Asks[0].Price, " Size: ", book.Asks[0].Amount, " elapsed: ", elapsed)
+							// }
 							r.MessageType[0] = 1
 							serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".orderbook", serialized, 1, false)
