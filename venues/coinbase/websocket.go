@@ -15,7 +15,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/backoff"
 	"github.com/maurodelazeri/lion/common"
-	"github.com/maurodelazeri/lion/influx"
+	"github.com/maurodelazeri/lion/mongo"
 	pbAPI "github.com/maurodelazeri/lion/protobuf/api"
 	"github.com/maurodelazeri/lion/streaming/kafka/producer"
 	"github.com/pquerna/ffjson/ffjson"
@@ -346,7 +346,7 @@ func (r *WebsocketCoinbase) startReading() {
 							r.MessageType[0] = 0
 							serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".trade", serialized, 1, false)
-							influx.InfluxQueue.Enqueue(trades)
+							mongodb.MongoQueue.Enqueue(trades)
 						}
 
 						if data.Type == "snapshot" {

@@ -13,6 +13,7 @@ import (
 	"syscall"
 
 	"github.com/maurodelazeri/lion/common"
+	"github.com/maurodelazeri/lion/mongo"
 	"github.com/maurodelazeri/lion/streaming/kafka/producer"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
@@ -70,6 +71,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	logrus.Info("Init mongo queue")
+	mongodb.InitQueue()
 
 	logrus.Infof("Venues setup")
 	winter.venues = NewWinterSyncMapConfig()
