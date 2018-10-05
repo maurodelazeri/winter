@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
-	"time"
 
 	"github.com/maurodelazeri/lion/orderbook"
 	"github.com/maurodelazeri/winter/config"
@@ -123,11 +122,6 @@ func (e *Base) RemoveIndex(s []float64, index int) []float64 {
 // FloatToString to convert a float number to a string
 func (e *Base) FloatToString(number float64) string {
 	return strconv.FormatFloat(number, 'f', -1, 64)
-}
-
-// MakeTimestamp create standart timestamp
-func (e *Base) MakeTimestamp() int64 {
-	return time.Now().UnixNano() / int64(time.Nanosecond)
 }
 
 // PercentChange gives the difference in percentage from 2 numbers

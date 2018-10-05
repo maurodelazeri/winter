@@ -318,7 +318,7 @@ func (r *WebsocketCoinbase) startReading() {
 								Product:   pbAPI.Product((pbAPI.Product_value[product])),
 								Venue:     pbAPI.Venue((pbAPI.Venue_value[r.base.GetName()])),
 								Levels:    int32(r.MaxLevelsOrderBook),
-								Timestamp: r.base.MakeTimestamp(),
+								Timestamp: common.MakeTimestamp(),
 								Asks:      (*liveBookMemomory)[product].Asks,
 								Bids:      (*liveBookMemomory)[product].Bids,
 								VenueType: pbAPI.VenueType_SPOT,
@@ -353,7 +353,7 @@ func (r *WebsocketCoinbase) startReading() {
 							trades := &pbAPI.Trade{
 								Product:   pbAPI.Product((pbAPI.Product_value[product])),
 								Venue:     pbAPI.Venue((pbAPI.Venue_value[r.base.GetName()])),
-								Timestamp: r.base.MakeTimestamp(),
+								Timestamp: common.MakeTimestamp(),
 								Price:     data.Price,
 								OrderSide: side,
 								Size:      data.Size,
