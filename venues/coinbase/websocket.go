@@ -336,7 +336,7 @@ func (r *WebsocketCoinbase) startReading() {
 							r.MessageType[0] = 1
 							serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".orderbook", serialized, 1, false)
-							//mongodb.MongoQueue.Enqueue(book)
+							mongodb.MongoQueue.Enqueue(book)
 							//	elapsed := time.Since(start)
 							//	logrus.Info("Done nats ", elapsed)
 						}
@@ -370,6 +370,8 @@ func (r *WebsocketCoinbase) startReading() {
 							mongodb.MongoQueue.Enqueue(trades)
 						}
 
+						// Store the raw data
+						//mongodb.MongoQueue.Enqueue(resp)
 						if data.Type == "snapshot" {
 
 							liveBookMemomory := &r.LiveOrderBook
