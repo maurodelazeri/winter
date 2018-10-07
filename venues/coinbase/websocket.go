@@ -19,6 +19,7 @@ import (
 	"github.com/maurodelazeri/lion/mongo"
 	pbAPI "github.com/maurodelazeri/lion/protobuf/api"
 	"github.com/maurodelazeri/lion/streaming/kafka/producer"
+	"github.com/maurodelazeri/winter/config"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
 )
@@ -154,8 +155,11 @@ func (r *WebsocketCoinbase) connect() {
 		r.LiveOrderBook.Set(sym, &pbAPI.Orderbook{})
 		r.OrderBookMAP[sym+"bids"] = make(map[float64]float64)
 		r.OrderBookMAP[sym+"asks"] = make(map[float64]float64)
-		venueArrayPairs = append(venueArrayPairs, r.base.VenueConfig.Get(r.base.GetName()).Products[sym].VenueName)
-		r.pairsMapping.Set(r.base.VenueConfig.Get(r.base.GetName()).Products[sym].VenueName, sym)
+		venueConf, ok := r.base.VenueConfig.Get(r.base.GetName())
+		if ok {
+			venueArrayPairs = append(venueArrayPairs, venueConf.(config.VenueConfig).Products[sym].VenueName)
+			r.pairsMapping.Set(venueConf.(config.VenueConfig).Products[sym].VenueName, sym)
+		}
 	}
 
 	for {
