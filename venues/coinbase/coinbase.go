@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/maurodelazeri/concurrency-map-slice"
 	"github.com/maurodelazeri/lion/orderbook"
-	pbAPI "github.com/maurodelazeri/lion/protobuf/api"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
 )
@@ -46,9 +46,9 @@ type WebsocketCoinbase struct {
 	HandshakeTimeout time.Duration
 
 	OrderBookMAP       map[string]map[float64]float64
-	LiveOrderBook      map[string]pbAPI.Orderbook
+	LiveOrderBook      *utils.ConcurrentMap
 	subscribedPairs    []string
-	pairsMapping       map[string]string
+	pairsMapping       *utils.ConcurrentMap
 	MessageType        []byte
 	MaxLevelsOrderBook int
 }

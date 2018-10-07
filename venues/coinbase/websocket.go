@@ -14,6 +14,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/gorilla/websocket"
 	"github.com/jpillora/backoff"
+	"github.com/maurodelazeri/concurrency-map-slice"
 	"github.com/maurodelazeri/lion/common"
 	"github.com/maurodelazeri/lion/mongo"
 	pbAPI "github.com/maurodelazeri/lion/protobuf/api"
@@ -144,17 +145,17 @@ func (r *WebsocketCoinbase) connect() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	r.OrderBookMAP = make(map[string]map[float64]float64)
-	r.LiveOrderBook = make(map[string]pbAPI.Orderbook)
-	r.pairsMapping = make(map[string]string)
+	r.LiveOrderBook = utils.NewConcurrentMap()
+	r.pairsMapping = utils.NewConcurrentMap()
 
 	venueArrayPairs := []string{}
 
 	for _, sym := range r.subscribedPairs {
-		r.LiveOrderBook[sym] = pbAPI.Orderbook{}
+		r.LiveOrderBook.Set(sym, &pbAPI.Orderbook{})
 		r.OrderBookMAP[sym+"bids"] = make(map[float64]float64)
 		r.OrderBookMAP[sym+"asks"] = make(map[float64]float64)
 		venueArrayPairs = append(venueArrayPairs, r.base.VenueConfig.Get(r.base.GetName()).Products[sym].VenueName)
-		r.pairsMapping[r.base.VenueConfig.Get(r.base.GetName()).Products[sym].VenueName] = sym
+		r.pairsMapping.Set(r.base.VenueConfig.Get(r.base.GetName()).Products[sym].VenueName, sym)
 	}
 
 	for {
@@ -217,12 +218,19 @@ func (r *WebsocketCoinbase) startReading() {
 							logrus.Error(err)
 							continue
 						}
-						product := r.pairsMapping[data.ProductID]
+						value, exist := r.pairsMapping.Get(data.ProductID)
+						if !exist {
+							continue
+						}
+						product := value.(string)
 
 						if data.Type == "l2update" {
 							//start := time.Now()
-							liveBookMemomory := &r.LiveOrderBook
-							refLiveBook := (*liveBookMemomory)[product]
+							refBook, ok := r.LiveOrderBook.Get(product)
+							if !ok {
+								continue
+							}
+							refLiveBook := refBook.(*pbAPI.Orderbook)
 							var wg sync.WaitGroup
 
 							for _, data := range data.Changes {
@@ -312,15 +320,13 @@ func (r *WebsocketCoinbase) startReading() {
 							}()
 
 							wg.Wait()
-							(*liveBookMemomory)[product] = refLiveBook
-
 							book := &pbAPI.Orderbook{
 								Product:   pbAPI.Product((pbAPI.Product_value[product])),
 								Venue:     pbAPI.Venue((pbAPI.Venue_value[r.base.GetName()])),
 								Levels:    int32(r.MaxLevelsOrderBook),
 								Timestamp: common.MakeTimestamp(),
-								Asks:      (*liveBookMemomory)[product].Asks,
-								Bids:      (*liveBookMemomory)[product].Bids,
+								Asks:      refLiveBook.Asks,
+								Bids:      refLiveBook.Bids,
 								VenueType: pbAPI.VenueType_SPOT,
 							}
 							serialized, err := proto.Marshal(book)
@@ -374,8 +380,12 @@ func (r *WebsocketCoinbase) startReading() {
 						//mongodb.MongoQueue.Enqueue(resp)
 						if data.Type == "snapshot" {
 
-							liveBookMemomory := &r.LiveOrderBook
-							refLiveBook := (*liveBookMemomory)[product]
+							refBook, ok := r.LiveOrderBook.Get(product)
+							if !ok {
+								continue
+							}
+							refLiveBook := refBook.(*pbAPI.Orderbook)
+
 							var wg sync.WaitGroup
 
 							wg.Add(1)
@@ -428,7 +438,6 @@ func (r *WebsocketCoinbase) startReading() {
 							}()
 							wg.Wait()
 
-							(*liveBookMemomory)[product] = refLiveBook
 						}
 					}
 				}
