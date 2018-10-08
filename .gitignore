@@ -1,0 +1,13 @@
+config.dat
+node_modules
+.vscode
+.ipc
+golang-sdk
+# InteliJ
+.idea
+*.iml
+vendor/
+elliptor
+winter
+golang-sdk
+seraph
