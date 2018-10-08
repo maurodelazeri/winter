@@ -5,17 +5,15 @@ import (
 	"strconv"
 
 	"github.com/maurodelazeri/concurrency-map-slice"
-	"github.com/maurodelazeri/lion/orderbook"
 	"github.com/maurodelazeri/winter/config"
 )
 
 // Base stores the individual venue information
 type Base struct {
-	Name            string
-	Verbose         bool
-	Enabled         bool
-	SystemOrderbook map[string]*orderbook.OrderBook
-	VenueConfig     *utils.ConcurrentMap
+	Name        string
+	Verbose     bool
+	Enabled     bool
+	VenueConfig *utils.ConcurrentMap
 }
 
 // Winter enforces standard functions for all venues supported in
