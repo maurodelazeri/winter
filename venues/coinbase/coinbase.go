@@ -7,7 +7,6 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/maurodelazeri/concurrency-map-slice"
-	"github.com/maurodelazeri/lion/orderbook"
 	"github.com/maurodelazeri/winter/config"
 	venue "github.com/maurodelazeri/winter/venues"
 )
@@ -69,11 +68,9 @@ func (r *Coinbase) Setup(venueName string, config config.VenueConfig) {
 func (r *Coinbase) Start() {
 	var dedicatedSocket, sharedSocket []string
 	// Individual system order book for each product
-	r.SystemOrderbook = make(map[string]*orderbook.OrderBook)
 	venueConf, ok := r.VenueConfig.Get(r.GetName())
 	if ok {
 		for product, value := range venueConf.(config.VenueConfig).Products {
-			r.SystemOrderbook[product] = orderbook.NewOrderBook()
 			// Separate products that will use a exclusive connection from those sharing a connection
 			if value.IndividualConnection {
 				dedicatedSocket = append(dedicatedSocket, product)
