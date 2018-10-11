@@ -337,12 +337,6 @@ func (r *WebsocketCoinbase) startReading() {
 							if err != nil {
 								log.Fatal("proto.Marshal error: ", err)
 							}
-							// for testing
-							// if book.Product == pbAPI.Product_BTC_USD {
-							// 	elapsed := time.Since(start)
-							// 	// logrus.Info("Done nats ", elapsed)
-							// 	logrus.Info("BEST BID: ", book.Bids[0].Price, " Size: ", book.Bids[0].Volume, " Best Ask: ", book.Asks[0].Price, " Size: ", book.Asks[0].Volume, " elapsed: ", elapsed)
-							// }
 							r.MessageType[0] = 1
 							serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".orderbook", serialized, 1, false)
