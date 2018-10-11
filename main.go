@@ -38,7 +38,7 @@ type WinterSyncMapConfig struct {
 type appInit struct {
 	Application string `json:"application,omitempty"`
 	Hostname    string `json:"hostname,omitempty"`
-	Timestamp   string `json:"timestamp,omitempty"`
+	Timestamp   int64  `json:"timestamp,omitempty"`
 }
 
 const banner = `
