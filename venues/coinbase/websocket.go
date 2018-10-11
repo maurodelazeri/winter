@@ -284,7 +284,7 @@ func (r *WebsocketCoinbase) startReading() {
 							go func() {
 								refLiveBook.Bids = []*pbAPI.Item{}
 								for price, amount := range r.OrderBookMAP[product+"bids"] {
-									refLiveBook.Bids = append(refLiveBook.Bids, &pbAPI.Item{Price: price, Amount: amount})
+									refLiveBook.Bids = append(refLiveBook.Bids, &pbAPI.Item{Price: price, Volume: amount})
 								}
 								sort.Slice(refLiveBook.Bids, func(i, j int) bool {
 									return refLiveBook.Bids[i].Price > refLiveBook.Bids[j].Price
@@ -296,7 +296,7 @@ func (r *WebsocketCoinbase) startReading() {
 							go func() {
 								refLiveBook.Asks = []*pbAPI.Item{}
 								for price, amount := range r.OrderBookMAP[product+"asks"] {
-									refLiveBook.Asks = append(refLiveBook.Asks, &pbAPI.Item{Price: price, Amount: amount})
+									refLiveBook.Asks = append(refLiveBook.Asks, &pbAPI.Item{Price: price, Volume: amount})
 								}
 								sort.Slice(refLiveBook.Asks, func(i, j int) bool {
 									return refLiveBook.Asks[i].Price < refLiveBook.Asks[j].Price
@@ -341,7 +341,7 @@ func (r *WebsocketCoinbase) startReading() {
 							// if book.Product == pbAPI.Product_BTC_USD {
 							// 	elapsed := time.Since(start)
 							// 	// logrus.Info("Done nats ", elapsed)
-							// 	logrus.Info("BEST BID: ", book.Bids[0].Price, " Size: ", book.Bids[0].Amount, " Best Ask: ", book.Asks[0].Price, " Size: ", book.Asks[0].Amount, " elapsed: ", elapsed)
+							// 	logrus.Info("BEST BID: ", book.Bids[0].Price, " Size: ", book.Bids[0].Volume, " Best Ask: ", book.Asks[0].Price, " Size: ", book.Asks[0].Volume, " elapsed: ", elapsed)
 							// }
 							r.MessageType[0] = 1
 							serialized = append(r.MessageType, serialized[:]...)
@@ -407,7 +407,7 @@ func (r *WebsocketCoinbase) startReading() {
 									if total > r.MaxLevelsOrderBook {
 										continue
 									}
-									refLiveBook.Asks = append(refLiveBook.Asks, &pbAPI.Item{Price: price, Amount: amount})
+									refLiveBook.Asks = append(refLiveBook.Asks, &pbAPI.Item{Price: price, Volume: amount})
 									r.OrderBookMAP[product+"bids"][price] = amount
 									total++
 								}
@@ -423,7 +423,7 @@ func (r *WebsocketCoinbase) startReading() {
 									if total > r.MaxLevelsOrderBook {
 										continue
 									}
-									refLiveBook.Bids = append(refLiveBook.Bids, &pbAPI.Item{Price: price, Amount: amount})
+									refLiveBook.Bids = append(refLiveBook.Bids, &pbAPI.Item{Price: price, Volume: amount})
 									r.OrderBookMAP[product+"asks"][price] = amount
 									total++
 								}
