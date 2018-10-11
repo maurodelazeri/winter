@@ -346,7 +346,6 @@ func (r *WebsocketCoinbase) startReading() {
 							r.MessageType[0] = 1
 							serialized = append(r.MessageType, serialized[:]...)
 							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".orderbook", serialized, 1, false)
-							mongodb.OrderbookQueue.Enqueue(book)
 							//	elapsed := time.Since(start)
 						}
 
@@ -359,24 +358,32 @@ func (r *WebsocketCoinbase) startReading() {
 								side = pbAPI.Side_SELL
 							}
 
-							trades := &pbAPI.Trade{
-								Product:   pbAPI.Product((pbAPI.Product_value[product])),
-								Venue:     pbAPI.Venue((pbAPI.Venue_value[r.base.GetName()])),
-								Timestamp: common.MakeTimestamp(),
-								Price:     data.Price,
-								OrderSide: side,
-								Size:      data.Size,
-								VenueType: pbAPI.VenueType_SPOT,
+							refBook, ok := r.LiveOrderBook.Get(product)
+							if !ok {
+								continue
 							}
-
-							serialized, err := proto.Marshal(trades)
-							if err != nil {
-								log.Fatal("proto.Marshal error: ", err)
+							refLiveBook := refBook.(*pbAPI.Orderbook)
+							if len(refLiveBook.Asks) > 4 && len(refLiveBook.Bids) > 4 {
+								trades := &pbAPI.Trade{
+									Product:   pbAPI.Product((pbAPI.Product_value[product])),
+									Venue:     pbAPI.Venue((pbAPI.Venue_value[r.base.GetName()])),
+									Timestamp: common.MakeTimestamp(),
+									Price:     data.Price,
+									OrderSide: side,
+									Size:      data.Size,
+									VenueType: pbAPI.VenueType_SPOT,
+									Asks:      refLiveBook.Asks[0:4],
+									Bids:      refLiveBook.Bids[0:4],
+								}
+								serialized, err := proto.Marshal(trades)
+								if err != nil {
+									log.Fatal("proto.Marshal error: ", err)
+								}
+								r.MessageType[0] = 0
+								serialized = append(r.MessageType, serialized[:]...)
+								kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".trade", serialized, 1, false)
+								mongodb.TradesQueue.Enqueue(trades)
 							}
-							r.MessageType[0] = 0
-							serialized = append(r.MessageType, serialized[:]...)
-							kafkaproducer.PublishMessageAsync(product+"."+r.base.Name+".trade", serialized, 1, false)
-							mongodb.TradesQueue.Enqueue(trades)
 						}
 
 						// Store the raw data
