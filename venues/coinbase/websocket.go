@@ -366,8 +366,8 @@ func (r *WebsocketCoinbase) startReading() {
 									OrderSide: side,
 									Size:      data.Size,
 									VenueType: pbAPI.VenueType_SPOT,
-									Asks:      refLiveBook.Asks[0:4],
-									Bids:      refLiveBook.Bids[0:4],
+									Asks:      refLiveBook.Asks,
+									Bids:      refLiveBook.Bids,
 								}
 								serialized, err := proto.Marshal(trades)
 								if err != nil {
