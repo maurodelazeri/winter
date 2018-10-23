@@ -73,7 +73,7 @@ func main() {
 	}
 
 	logrus.Info("Init mongo queue")
-	mongodb.InitQueue()
+	mongodb.InitQueueTrades()
 
 	logrus.Infof("Venues setup")
 	winter.venues = NewWinterSyncMapConfig()
