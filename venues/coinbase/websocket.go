@@ -364,7 +364,7 @@ func (r *WebsocketCoinbase) startReading() {
 									Timestamp: common.MakeTimestamp(),
 									Price:     data.Price,
 									OrderSide: side,
-									Size:      data.Size,
+									Volume:    data.Size,
 									VenueType: pbAPI.VenueType_SPOT,
 									Asks:      refLiveBook.Asks,
 									Bids:      refLiveBook.Bids,
