@@ -20,6 +20,7 @@ import (
 	"github.com/maurodelazeri/winter/venues/coinbase"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
 )
 
 // Winter contains configuration
@@ -52,9 +53,38 @@ const banner = `
 
 var winter Winter
 
+func actionFunc(c *cli.Context) error {
+	if c.Bool("debug") {
+
+	}
+	if c.String("domain") == "" {
+		return cli.NewExitError("Need to specify --domain", 1)
+	}
+	domain := c.String("domain")
+	logrus.Info(domain)
+	return nil
+}
+
 func main() {
 
 	HandleInterrupt()
+
+	app := cli.NewApp()
+	app.Name = "Winter"
+	app.Usage = "Winter Streaming Datasets"
+	app.Action = actionFunc
+	app.Version = "1.0"
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "debug",
+			Usage: "run in debug mode",
+		},
+		cli.StringFlag{
+			Name:  "domain",
+			Usage: "the domain to generate the cert for",
+		},
+	}
+	app.Run(os.Args)
 
 	fmt.Println(banner)
 
