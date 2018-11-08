@@ -152,7 +152,7 @@ func SetupVenues() {
 		logrus.Info("Loading ", x.Name)
 		exch.SetDefaults()
 		winter.venues.Put(x.Name, exch)
-		exch.Setup(x.Name, x)
+		exch.Setup(x.Name, x, true)
 		exch.Start()
 		winter.totalVenuesLoaded++
 	}
