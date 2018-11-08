@@ -9,21 +9,26 @@ import (
 	"os/signal"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 
-	"github.com/maurodelazeri/lion/mongo"
+	"github.com/maurodelazeri/lion/common"
 	venue "github.com/maurodelazeri/lion/venues"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
+
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli"
 )
 
 // Winter contains configuration
 type Winter struct {
-	waitGroup sync.WaitGroup
-	venues    *SyncMapVenuesConfig
-	config    *config.Config
+	waitGroup         sync.WaitGroup
+	venues            *SyncMapVenuesConfig
+	config            *config.Config
+	venuesInit        []string
+	totalVenuesLoaded int
 }
 
 // SyncMapVenuesConfig ...
@@ -49,9 +54,32 @@ const banner = `
 
 var winter Winter
 
+func actionFunc(c *cli.Context) error {
+	if c.String("venues") != "" {
+		winter.venuesInit = common.SplitStrings(c.String("venues"), ",")
+		if len(winter.venuesInit) == 0 {
+			return cli.NewExitError("Venues must be specified with comma separation", 1)
+		}
+	}
+	return nil
+}
+
 func main() {
 
 	HandleInterrupt()
+
+	app := cli.NewApp()
+	app.Name = "Winter"
+	app.Usage = "Winter Streaming Datasets"
+	app.Action = actionFunc
+	app.Version = "1.0"
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "venues",
+			Usage: "the domain to generate the cert for",
+		},
+	}
+	app.Run(os.Args)
 
 	fmt.Println(banner)
 
@@ -75,8 +103,6 @@ func main() {
 
 	winter.waitGroup.Wait()
 
-	mongodb.InitQueueBacktesting()
-
 	// logrus.Infof("Registering winter on kafka")
 	// hostname, _ := os.Hostname()
 	// appRegister, _ := ffjson.Marshal(&appInit{
@@ -90,6 +116,12 @@ func main() {
 	// }
 	// logrus.Infof("Kafka is ready")
 
+	logrus.Info("Venues loaded ", winter.totalVenuesLoaded)
+
+	if winter.totalVenuesLoaded == 0 {
+		os.Exit(0)
+	}
+
 	logrus.Infof("Winter started \n")
 
 	<-cancelContext.Done()
@@ -101,15 +133,28 @@ func main() {
 // SetupVenues sets up the venues used by the westeros
 func SetupVenues() {
 	for x := range winter.config.Venues.Values() {
+		var found bool
+		if len(winter.venuesInit) > 0 {
+			for i := range winter.venuesInit {
+				if strings.ToUpper(winter.venuesInit[i]) == x.Name {
+					found = true
+				}
+			}
+		}
+		if !found {
+			return
+		}
 		exch, err := LoadVenue(x)
 		if err != nil {
 			log.Printf("LoadVenue %s failed: %s", x.Name, err)
 			continue
 		}
+		logrus.Info("Loading ", x.Name)
 		exch.SetDefaults()
 		winter.venues.Put(x.Name, exch)
 		exch.Setup(x.Name, x)
 		exch.Start()
+		winter.totalVenuesLoaded++
 	}
 }
 
