@@ -57,10 +57,14 @@ var winter Winter
 
 func actionFunc(c *cli.Context) error {
 	if c.String("venues") != "" {
-		winter.venuesInit = common.SplitStrings(c.String("venues"), ",")
-		if len(winter.venuesInit) == 0 {
-			return cli.NewExitError("Venues must be specified with comma separation", 1)
-		}
+		return cli.NewExitError("You must specified the venues or use all to streaming all", 1)
+	}
+	if c.String("venues") == "all" {
+		return nil
+	}
+	winter.venuesInit = common.SplitStrings(c.String("venues"), ",")
+	if len(winter.venuesInit) == 0 {
+		return cli.NewExitError("Venues must be specified with comma separation", 1)
 	}
 	return nil
 }
