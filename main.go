@@ -56,10 +56,11 @@ const banner = `
 var winter Winter
 
 func actionFunc(c *cli.Context) error {
-	if c.String("venues") != "" {
+	if c.String("venues") == "" {
 		return cli.NewExitError("You must specified the venues or use all to streaming all", 1)
 	}
 	if c.String("venues") == "all" {
+		winter.venuesInit = []string{}
 		return nil
 	}
 	winter.venuesInit = common.SplitStrings(c.String("venues"), ",")
@@ -147,7 +148,9 @@ func SetupVenues() {
 			}
 		}
 		if !found {
-			return
+			if len(winter.venuesInit) > 0 {
+				return
+			}
 		}
 		exch, err := LoadVenue(x)
 		if err != nil {
@@ -158,7 +161,7 @@ func SetupVenues() {
 		exch.SetDefaults()
 		winter.venues.Put(x.Name, exch)
 		exch.Setup(x.Name, x, true)
-		exch.Start()
+		exch.StartStreamingToStorage(true, true)
 		winter.totalVenuesLoaded++
 	}
 }
