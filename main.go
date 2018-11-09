@@ -161,7 +161,7 @@ func SetupVenues() {
 		exch.SetDefaults()
 		winter.venues.Put(x.Name, exch)
 		exch.Setup(x.Name, x, true)
-		exch.StartStreamingToStorage(true, true)
+		exch.Start()
 		winter.totalVenuesLoaded++
 	}
 }
