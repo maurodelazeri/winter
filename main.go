@@ -151,7 +151,7 @@ func SetupVenues() {
 		}
 		if !found {
 			if len(winter.venuesInit) > 0 {
-				return
+				continue
 			}
 		}
 		exch, err := LoadVenue(x)
