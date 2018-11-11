@@ -16,7 +16,7 @@ import (
 	"github.com/maurodelazeri/lion/common"
 	"github.com/maurodelazeri/lion/streaming/kafka/producer"
 	venue "github.com/maurodelazeri/lion/venues"
-	"github.com/maurodelazeri/lion/venues/bitmex"
+	"github.com/maurodelazeri/lion/venues/binance"
 	"github.com/maurodelazeri/lion/venues/config"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
@@ -181,8 +181,10 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 
 	// case "COINBASEPRO":
 	// 	exch = new(coinbase.Coinbase)
-	case "BITMEX":
-		exch = new(bitmex.Bitmex)
+	// case "BITMEX":
+	// 	exch = new(bitmex.Bitmex)
+	case "BINANCE":
+		exch = new(binance.Binance)
 	default:
 		return exch, errors.New("venue " + conf.Name + " not found")
 	}
