@@ -191,7 +191,9 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(binance.Binance)
 	case "BITFINEX":
 		exch = new(bitfinex.Bitfinex)
-	case "OKEX":
+	case "OKEX_INTERNATIONAL_FUT":
+		exch = new(okex.Okex)
+	case "OKEX_INTERNATIONAL_SPOT":
 		exch = new(okex.Okex)
 	default:
 		return exch, errors.New("venue " + conf.Name + " not found")
