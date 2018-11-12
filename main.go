@@ -21,6 +21,7 @@ import (
 	"github.com/maurodelazeri/lion/venues/bitmex"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
+	"github.com/maurodelazeri/lion/venues/okex"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -190,6 +191,8 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(binance.Binance)
 	case "BITFINEX":
 		exch = new(bitfinex.Bitfinex)
+	case "OKEX":
+		exch = new(okex.Okex)
 	default:
 		return exch, errors.New("venue " + conf.Name + " not found")
 	}
