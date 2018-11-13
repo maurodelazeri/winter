@@ -21,6 +21,7 @@ import (
 	"github.com/maurodelazeri/lion/venues/bitmex"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
+	"github.com/maurodelazeri/lion/venues/huobi"
 	"github.com/maurodelazeri/lion/venues/okex"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
@@ -195,6 +196,8 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(okex.Okex)
 	case "OKEX_INTERNATIONAL_SPOT":
 		exch = new(okex.Okex)
+	case "HUOBI":
+		exch = new(huobi.Huobi)
 	default:
 		return exch, errors.New("venue " + conf.Name + " not found")
 	}
