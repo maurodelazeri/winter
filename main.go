@@ -24,6 +24,7 @@ import (
 	"github.com/maurodelazeri/lion/venues/gateio"
 	"github.com/maurodelazeri/lion/venues/huobi"
 	"github.com/maurodelazeri/lion/venues/okex"
+	"github.com/maurodelazeri/lion/venues/zb"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -203,6 +204,8 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		// 	exch = new(deribit.Deribit)
 	case "GATEIO":
 		exch = new(gateio.Gateio)
+	case "ZB":
+		exch = new(zb.Zb)
 	default:
 		return exch, errors.New("venue " + conf.Name + " not found")
 	}
