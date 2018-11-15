@@ -21,6 +21,7 @@ import (
 	"github.com/maurodelazeri/lion/venues/bitmex"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
+	"github.com/maurodelazeri/lion/venues/gateio"
 	"github.com/maurodelazeri/lion/venues/huobi"
 	"github.com/maurodelazeri/lion/venues/okex"
 	"github.com/pquerna/ffjson/ffjson"
@@ -198,6 +199,10 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(okex.Okex)
 	case "HUOBIPRO":
 		exch = new(huobi.Huobi)
+		// case "DERIBIT":
+		// 	exch = new(deribit.Deribit)
+	case "GATEIO":
+		exch = new(gateio.Gateio)
 	default:
 		return exch, errors.New("venue " + conf.Name + " not found")
 	}
