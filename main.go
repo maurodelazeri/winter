@@ -22,8 +22,10 @@ import (
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
 	"github.com/maurodelazeri/lion/venues/gateio"
+	"github.com/maurodelazeri/lion/venues/gemini"
 	"github.com/maurodelazeri/lion/venues/huobi"
 	"github.com/maurodelazeri/lion/venues/okex"
+	"github.com/maurodelazeri/lion/venues/poloniex"
 	"github.com/maurodelazeri/lion/venues/zb"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
@@ -177,15 +179,6 @@ func SetupVenues() {
 func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 	var exch venue.Venues
 	switch conf.Name {
-	// case "bitfinex":
-	// 	exch = new(bitfinex.Bitfinex)
-	// case "bitmex":
-	// 	exch = new(bitmex.Bitmex)
-	// case "binance":
-	// 	exch = new(binance.Binance)
-	// case "coinbase":
-	// 	exch = new(coinbase.Coinbase)
-
 	case "COINBASEPRO":
 		exch = new(coinbase.Coinbase)
 	case "BITMEX":
@@ -206,6 +199,10 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(gateio.Gateio)
 	case "ZB":
 		exch = new(zb.Zb)
+	case "POLONIEX":
+		exch = new(poloniex.Poloniex)
+	case "GEMINI":
+		exch = new(gemini.Gemini)
 	default:
 		return exch, errors.New("venue " + conf.Name + " not found")
 	}
