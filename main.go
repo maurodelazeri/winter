@@ -17,11 +17,14 @@ import (
 	"github.com/maurodelazeri/lion/streaming/kafka/producer"
 	venue "github.com/maurodelazeri/lion/venues"
 	"github.com/maurodelazeri/lion/venues/binance"
+	"github.com/maurodelazeri/lion/venues/bitcambio"
+	"github.com/maurodelazeri/lion/venues/bitcointoyou"
 	"github.com/maurodelazeri/lion/venues/bitfinex"
 	"github.com/maurodelazeri/lion/venues/bitmex"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
 	"github.com/maurodelazeri/lion/venues/deribit"
+	"github.com/maurodelazeri/lion/venues/foxbit"
 	"github.com/maurodelazeri/lion/venues/gateio"
 	"github.com/maurodelazeri/lion/venues/gemini"
 	"github.com/maurodelazeri/lion/venues/huobi"
@@ -204,6 +207,12 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(poloniex.Poloniex)
 	case "GEMINI":
 		exch = new(gemini.Gemini)
+	case "FOXBIT":
+		exch = new(foxbit.Foxbit)
+	case "BITCAMBIO":
+		exch = new(bitcambio.Bitcambio)
+	case "BITCOINTOYOU":
+		exch = new(bitcointoyou.Bitcointoyou)
 	default:
 		return exch, errors.New("venue " + conf.Name + " not found")
 	}
