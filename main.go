@@ -18,7 +18,6 @@ import (
 	venue "github.com/maurodelazeri/lion/venues"
 	"github.com/maurodelazeri/lion/venues/binance"
 	"github.com/maurodelazeri/lion/venues/bitcambio"
-	"github.com/maurodelazeri/lion/venues/bitcointoyou"
 	"github.com/maurodelazeri/lion/venues/bitfinex"
 	"github.com/maurodelazeri/lion/venues/bitmex"
 	"github.com/maurodelazeri/lion/venues/coinbase"
@@ -211,8 +210,8 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(foxbit.Foxbit)
 	case "BITCAMBIO":
 		exch = new(bitcambio.Bitcambio)
-	case "BITCOINTOYOU":
-		exch = new(bitcointoyou.Bitcointoyou)
+	// case "BITCOINTOYOU":
+	// 	exch = new(bitcointoyou.Bitcointoyou)
 	default:
 		return exch, errors.New("venue " + conf.Name + " not found")
 	}
