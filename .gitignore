@@ -8,6 +8,5 @@ golang-sdk
 *.iml
 vendor/
 elliptor
-winter
 golang-sdk
 seraph
