@@ -11,15 +11,15 @@ export MONGODB_USERNAME="mongo-admin"
 export MONGODB_PASSWORD="Br@sa154"
 ```
 
-```
-export INFLUX_UDP_ADDR="192.168.1.200:8089"
-export KAFKA_BROKERS="68.169.103.37:9092"
-export MONGODB_DATABASE_NAME="zinnion"
-export MONGODB_CONNECTION="winter.zinnion.com:27017"
-export MONGODB_USERNAME="mongo-admin"
-export MONGODB_PASSWORD="Br@sa154"
+export PSQL_HOST=68.169.103.38
+export PSQL_USER="postgres"
+export PSQL_PASS="Br@sa154"
+export PSQL_DB="zinnion"
+export KAFKA_BROKERS="68.169.103.38:9092"
+
 ```
 
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s"
 
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags '-w -s -extldflags "-static"'
+```

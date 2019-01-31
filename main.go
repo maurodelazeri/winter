@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 
@@ -132,38 +133,41 @@ func main() {
 
 // SetupVenues sets up the venues used by the westeros
 func SetupVenues() {
-	// for x := range winter.config.Venues.Iter() {
-	// 	var found bool
-	// 	if len(winter.venuesInit) > 0 {
-	// 		for i := range winter.venuesInit {
-	// 			if strings.ToUpper(winter.venuesInit[i]) == x.Name {
-	// 				found = true
-	// 			}
-	// 		}
-	// 	}
-	// 	if !found {
-	// 		if len(winter.venuesInit) > 0 {
-	// 			continue
-	// 		}
-	// 	}
-	// 	exch, err := LoadVenue(x)
-	// 	if err != nil {
-	// 		log.Printf("LoadVenue %s failed: %s", x.Name, err)
-	// 		continue
-	// 	}
-	// 	logrus.Info("Loading ", x.Name)
-	// 	exch.SetDefaults()
-	// 	winter.venues.Put(x.Name, exch)
-	// 	exch.Setup(x.Name, x, true, 20)
-	// 	exch.Start()
-	// 	winter.totalVenuesLoaded++
-	// }
+	for x := range winter.config.Venues.Iter() {
+		data := x.Value
+		venueConfig := data.(*config.VenueConfig)
+
+		var found bool
+		if len(winter.venuesInit) > 0 {
+			for i := range winter.venuesInit {
+				if strings.ToUpper(winter.venuesInit[i]) == venueConfig.Venue.Name {
+					found = true
+				}
+			}
+		}
+		if !found {
+			if len(winter.venuesInit) > 0 {
+				continue
+			}
+		}
+		exch, err := LoadVenue(*venueConfig)
+		if err != nil {
+			log.Printf("LoadVenue %s failed: %s", venueConfig.Venue.Name, err)
+			continue
+		}
+		logrus.Info("Loading ", venueConfig.Venue.Name)
+		exch.SetDefaults()
+		winter.venues.Set(venueConfig.Venue.Name, exch)
+		exch.Setup(venueConfig.Venue.Name, *venueConfig, true, 20)
+		exch.Start()
+		winter.totalVenuesLoaded++
+	}
 }
 
 // LoadVenue loads an venue by name
 func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 	var exch venue.Venues
-	switch conf.Name {
+	switch conf.Venue.Name {
 	case "COINBASEPRO":
 		exch = new(coinbase.Coinbase)
 	// case "BITMEX":
@@ -195,7 +199,7 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 	// case "BITCOINTOYOU":
 	// 	exch = new(bitcointoyou.Bitcointoyou)
 	default:
-		return exch, errors.New("venue " + conf.Name + " not found")
+		return exch, errors.New("venue " + conf.Venue.Name + " not found")
 	}
 	if exch == nil {
 		return exch, errors.New("venue failed to load")
