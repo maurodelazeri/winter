@@ -16,7 +16,7 @@ export PSQL_USER="postgres"
 export PSQL_PASS="Br@sa154"
 export PSQL_DB="zinnion"
 export KAFKA_BROKERS="68.169.103.38:9092"
-export SOCKET_URL="ws://68.169.103.39:8002/connection/websocket"
+export SOCKET_URL="ws://68.169.103.39:8002/connection/websocket?format=protobuf"
 export SOCKET_SECRET="Br@sa154"
 
 ```
