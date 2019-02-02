@@ -17,7 +17,8 @@ export PSQL_PASS="Br@sa154"
 export PSQL_DB="zinnion"
 export KAFKA_BROKERS="68.169.103.38:9092"
 export SOCKET_URL="ws://68.169.103.39:8002/connection/websocket?format=protobuf"
-export SOCKET_SECRET="Br@sa154"
+export SOCKET_SECRET="a69c81f636527a6ddbf99fecbf5b53d6"
+export SOCKET_ADMIN_SECRET="f21d3d09fd6f6e9631d855cc1fc0e36f"
 
 ```
 

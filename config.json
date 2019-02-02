@@ -1,0 +1,61 @@
+{
+    "secret": "a69c81f636527a6ddbf99fecbf5b53d6",
+    "admin_password": "Br@sa154",
+    "admin_secret": "f21d3d09fd6f6e9631d855cc1fc0e36f",
+    "namespaces": [{
+            "name": "chat",
+            "anonymous": false,
+            "publish": true,
+            "join_leave": true,
+            "presence": true,
+            "presence_stats": true,
+            "history_size": 10,
+            "history_lifetime": 60,
+            "history_recover": true
+        },
+        {
+            "name": "public",
+            "anonymous": true,
+            "publish": true,
+            "join_leave": true,
+            "presence": true,
+            "presence_stats": true,
+            "history_size": 10,
+            "history_lifetime": 60,
+            "history_recover": true
+        },
+        {
+            "name": "trades",
+            "anonymous": false,
+            "publish": true,
+            "join_leave": true,
+            "presence": true,
+            "presence_stats": true,
+            "history_size": 10,
+            "history_lifetime": 60,
+            "history_recover": true
+        },
+        {
+            "name": "orderbooks",
+            "anonymous": false,
+            "publish": true,
+            "join_leave": true,
+            "presence": true,
+            "presence_stats": true,
+            "history_size": 10,
+            "history_lifetime": 60,
+            "history_recover": true
+        },
+        {
+            "name": "tick",
+            "anonymous": false,
+            "publish": true,
+            "join_leave": true,
+            "presence": true,
+            "presence_stats": true,
+            "history_size": 10,
+            "history_lifetime": 60,
+            "history_recover": true
+        }
+    ]
+}
