@@ -15,11 +15,10 @@ import (
 
 	"github.com/maurodelazeri/concurrency-map-slice"
 	"github.com/maurodelazeri/lion/common"
-	"github.com/maurodelazeri/lion/streaming/kafka/producer"
+	"github.com/maurodelazeri/lion/socket"
 	venue "github.com/maurodelazeri/lion/venues"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
-	"github.com/pquerna/ffjson/ffjson"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -104,18 +103,21 @@ func main() {
 
 	winter.waitGroup.Wait()
 
-	logrus.Infof("Registering winter on kafka")
-	hostname, _ := os.Hostname()
-	appRegister, _ := ffjson.Marshal(&appInit{
-		Application: "winter",
-		Hostname:    hostname,
-		Timestamp:   common.MakeTimestamp(),
-	})
-	err = kafkaproducer.PublishMessageAsync("applications", appRegister, int32(0), true)
-	if err != nil {
-		log.Fatal(err)
-	}
-	logrus.Infof("Kafka is ready")
+	// logrus.Infof("Registering winter on kafka")
+	// hostname, _ := os.Hostname()
+	// appRegister, _ := ffjson.Marshal(&appInit{
+	// 	Application: "winter",
+	// 	Hostname:    hostname,
+	// 	Timestamp:   common.MakeTimestamp(),
+	// })
+	// err = kafkaproducer.PublishMessageAsync("applications", appRegister, int32(0), true)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	//logrus.Infof("Kafka is ready")
+
+	logrus.Infof("Initializing Socket Server")
+	socket.InitSocketEngine("winter", 100000000000)
 
 	logrus.Info("Venues loaded ", winter.totalVenuesLoaded)
 
