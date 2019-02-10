@@ -19,6 +19,11 @@ export KAFKA_BROKERS="68.169.103.38:9092"
 export SOCKET_URL="ws://68.169.103.39:8002/connection/websocket?format=protobuf"
 export SOCKET_SECRET="a69c81f636527a6ddbf99fecbf5b53d6"
 
+WINTER_VENUE_ID
+WINTER_DATAFEED_ID
+SOCKET_SECRET
+SOCKET_URL
+
 ```
 
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s"
