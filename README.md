@@ -16,13 +16,11 @@ export PSQL_USER="postgres"
 export PSQL_PASS="Br@sa154"
 export PSQL_DB="zinnion"
 export KAFKA_BROKERS="68.169.103.38:9092"
-export SOCKET_ADDR="ws://68.169.103.39:8002/connection/websocket?format=protobuf"
+export SOCKET_ADDR="68.169.103.39:8002"
 export SOCKET_SECRET="a69c81f636527a6ddbf99fecbf5b53d6"
 
-WINTER_VENUE_ID
-WINTER_DATAFEED_ID
-SOCKET_SECRET
-SOCKET_ADDR
+export WINTER_VENUE_ID=2
+export WINTER_DATAFEED_ID=20
 
 ```
 GOOS=linux go build -a -tags static_all -o build/winter
