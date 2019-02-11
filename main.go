@@ -14,7 +14,6 @@ import (
 	"syscall"
 
 	"github.com/maurodelazeri/concurrency-map-slice"
-	"github.com/maurodelazeri/lion/socket"
 	venue "github.com/maurodelazeri/lion/venues"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
@@ -85,9 +84,6 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 	//logrus.Infof("Kafka is ready")
-
-	logrus.Infof("Initializing Socket Server")
-	socket.InitSocketEngine("winter", 100000000000)
 
 	logrus.Info("Venues loaded ", winter.totalVenuesLoaded)
 

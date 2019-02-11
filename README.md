@@ -20,7 +20,8 @@ export SOCKET_ADDR="68.169.103.39:8002"
 export SOCKET_SECRET="a69c81f636527a6ddbf99fecbf5b53d6"
 
 export WINTER_VENUE_ID=2
-export WINTER_DATAFEED_ID=21
+export WINTER_DATAFEED_ID=26
+export SOCKET_SECRET_ADMIN="f21d3d09fd6f6e9631d855cc1fc0e36f"
 
 ```
 GOOS=linux go build -a -tags static_all -o build/winter
