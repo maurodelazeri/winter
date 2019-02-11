@@ -25,6 +25,7 @@ SOCKET_SECRET
 SOCKET_ADDR
 
 ```
+GOOS=linux go build -a -tags static_all -o build/winter
 
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s"
 
