@@ -14,7 +14,7 @@ export SOCKET_ADDR="68.169.103.39:8002"
 export SOCKET_SECRET="a69c81f636527a6ddbf99fecbf5b53d6"
 export WINTER_VENUE_ID=2
 export WINTER_DATAFEED_PRODUCTS=1,2
-export WINTER_CONTAINER_NAME="mauro local"
+export WINTER_CONTAINER_EVENT="mauro local"
 
 ```
 
