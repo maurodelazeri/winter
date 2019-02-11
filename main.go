@@ -14,13 +14,11 @@ import (
 	"syscall"
 
 	"github.com/maurodelazeri/concurrency-map-slice"
-	"github.com/maurodelazeri/lion/common"
 	"github.com/maurodelazeri/lion/socket"
 	venue "github.com/maurodelazeri/lion/venues"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
 )
 
 // Winter contains configuration
@@ -49,37 +47,9 @@ const banner = `
 
 var winter Winter
 
-func actionFunc(c *cli.Context) error {
-	if c.String("venues") == "" {
-		return cli.NewExitError("You must specified the venues or use all to streaming all", 1)
-	}
-	if c.String("venues") == "all" {
-		winter.venuesInit = []string{}
-		return nil
-	}
-	winter.venuesInit = common.SplitStrings(c.String("venues"), ",")
-	if len(winter.venuesInit) == 0 {
-		return cli.NewExitError("Venues must be specified with comma separation", 1)
-	}
-	return nil
-}
-
 func main() {
 
 	HandleInterrupt()
-
-	app := cli.NewApp()
-	app.Name = "Winter"
-	app.Usage = "Winter Streaming Datasets"
-	app.Action = actionFunc
-	app.Version = "1.0"
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "venues",
-			Usage: "venue to initiate",
-		},
-	}
-	app.Run(os.Args)
 
 	fmt.Println(banner)
 
