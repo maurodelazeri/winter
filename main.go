@@ -12,11 +12,16 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/maurodelazeri/concurrency-map-slice"
+	event "github.com/maurodelazeri/lion/events"
+	pbEvent "github.com/maurodelazeri/lion/protobuf/heraldsquareAPI"
 	venue "github.com/maurodelazeri/lion/venues"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
+	"github.com/pquerna/ffjson/ffjson"
+	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -32,7 +37,7 @@ type Winter struct {
 type appInit struct {
 	Application string `json:"application,omitempty"`
 	Hostname    string `json:"hostname,omitempty"`
-	Timestamp   int64  `json:"timestamp,omitempty"`
+	Timestamp   string `json:"timestamp,omitempty"`
 }
 
 const banner = `
@@ -72,18 +77,16 @@ func main() {
 
 	winter.waitGroup.Wait()
 
-	// logrus.Infof("Registering winter on kafka")
-	// hostname, _ := os.Hostname()
-	// appRegister, _ := ffjson.Marshal(&appInit{
-	// 	Application: "winter",
-	// 	Hostname:    hostname,
-	// 	Timestamp:   common.MakeTimestamp(),
-	// })
-	// err = kafkaproducer.PublishMessageAsync("applications", appRegister, int32(0), true)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	//logrus.Infof("Kafka is ready")
+	logrus.Infof("Registering summer on kafka")
+	hostname, _ := os.Hostname()
+	appRegister, _ := ffjson.Marshal(&appInit{
+		Application: "winter",
+		Hostname:    hostname,
+		Timestamp:   time.Now().String(),
+	})
+	eventID, _ := uuid.NewV4()
+	eventData := event.CreateBaseEvent(eventID.String(), "startup", "winter starting", string(appRegister), true, 0, pbEvent.System_WINTER)
+	event.PublishEvent(eventData, "application", int64(1), false)
 
 	logrus.Info("Venues loaded ", winter.totalVenuesLoaded)
 
