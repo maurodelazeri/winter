@@ -85,7 +85,7 @@ func main() {
 		Timestamp:   time.Now().String(),
 	})
 	eventID, _ := uuid.NewV4()
-	eventData := event.CreateBaseEvent(eventID.String(), "startup", "winter starting", string(appRegister), false, 0, pbEvent.System_WINTER)
+	eventData := event.CreateBaseEvent(eventID.String(), "main", "", string(appRegister), "", false, 0, pbEvent.System_WINTER)
 	event.PublishEvent(eventData, "events", int64(1), false)
 
 	logrus.Info("Venues loaded ", winter.totalVenuesLoaded)
