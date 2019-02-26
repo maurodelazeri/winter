@@ -14,10 +14,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/maurodelazeri/concurrency-map-slice"
+	utils "github.com/maurodelazeri/concurrency-map-slice"
 	event "github.com/maurodelazeri/lion/events"
 	pbEvent "github.com/maurodelazeri/lion/protobuf/heraldsquareAPI"
 	venue "github.com/maurodelazeri/lion/venues"
+	"github.com/maurodelazeri/lion/venues/binance"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
 	"github.com/pquerna/ffjson/ffjson"
@@ -139,12 +140,12 @@ func SetupVenues() {
 func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 	var exch venue.Venues
 	switch conf.Venue.Name {
+	case "BINANCE":
+		exch = new(binance.Binance)
 	case "COINBASEPRO":
 		exch = new(coinbase.Coinbase)
 	// case "BITMEX":
 	// 	exch = new(bitmex.Bitmex)
-	// case "BINANCE":
-	// 	exch = new(binance.Binance)
 	// case "BITFINEX":
 	// 	exch = new(bitfinex.Bitfinex)
 	// case "OKEX_INTERNATIONAL_FUT":
