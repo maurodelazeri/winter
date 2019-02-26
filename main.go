@@ -20,6 +20,7 @@ import (
 	venue "github.com/maurodelazeri/lion/venues"
 	"github.com/maurodelazeri/lion/venues/binance"
 	"github.com/maurodelazeri/lion/venues/bitfinex"
+	"github.com/maurodelazeri/lion/venues/bitmex"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
 	"github.com/pquerna/ffjson/ffjson"
@@ -147,8 +148,8 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(coinbase.Coinbase)
 	case "BITFINEX":
 		exch = new(bitfinex.Bitfinex)
-	// case "BITMEX":
-	// 	exch = new(bitmex.Bitmex)
+	case "BITMEX":
+		exch = new(bitmex.Bitmex)
 	// case "OKEX_INTERNATIONAL_FUT":
 	// 	exch = new(okex.Okex)
 	// case "OKEX_INTERNATIONAL_SPOT":
