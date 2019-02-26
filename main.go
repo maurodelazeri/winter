@@ -83,7 +83,7 @@ func main() {
 	appRegister, _ := ffjson.Marshal(&appInit{
 		Application: "winter",
 		Hostname:    hostname,
-		Timestamp:   time.Now().String(),
+		Timestamp:   time.Now().UTC().Format(time.RFC3339Nano),
 	})
 	eventID, _ := uuid.NewV4()
 	eventData := event.CreateBaseEvent(eventID.String(), "main", appRegister, "", "", false, 0, pbEvent.System_ALASKA)
