@@ -28,5 +28,4 @@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags '-
 
 dockerd --tlsverify --tlscacert=ca.pem --tlscert=server-cert.pem --tlskey=server-key.pem -H=0.0.0.0:2376
 
-
-scp build/winter mauro@zinnion.com:/www/zinnion-website/binaries/
+GOOS=linux go build -a -tags static_all -o build/winter && scp build/winter mauro@zinnion.com:/www/zinnion-website/binaries/
