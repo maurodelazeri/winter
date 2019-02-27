@@ -23,6 +23,7 @@ import (
 	"github.com/maurodelazeri/lion/venues/bitmex"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
+	"github.com/maurodelazeri/lion/venues/deribit"
 	"github.com/pquerna/ffjson/ffjson"
 	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
@@ -150,14 +151,14 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(bitfinex.Bitfinex)
 	case "BITMEX":
 		exch = new(bitmex.Bitmex)
+	case "DERIBIT":
+		exch = new(deribit.Deribit)
 	// case "OKEX_INTERNATIONAL_FUT":
 	// 	exch = new(okex.Okex)
 	// case "OKEX_INTERNATIONAL_SPOT":
 	// 	exch = new(okex.Okex)
 	// case "HUOBIPRO":
 	// 	exch = new(huobi.Huobi)
-	// case "DERIBIT":
-	// 	exch = new(deribit.Deribit)
 	// case "GATEIO":
 	// 	exch = new(gateio.Gateio)
 	// case "ZB":
