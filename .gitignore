@@ -10,3 +10,5 @@ vendor/
 elliptor
 golang-sdk
 seraph
+winter
+build/winter
