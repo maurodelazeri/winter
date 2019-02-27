@@ -172,8 +172,8 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 	// 	exch = new(foxbit.Foxbit)
 	// case "BITCAMBIO":
 	// 	exch = new(bitcambio.Bitcambio)
-	// case "BITCOINTOYOU":
-	// 	exch = new(bitcointoyou.Bitcointoyou)
+	// case "KRAKEN":
+	// 	exch = new(kraken.Kraken)
 	default:
 		return exch, errors.New("venue " + conf.Venue.Name + " not found")
 	}
