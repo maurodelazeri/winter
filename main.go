@@ -25,6 +25,7 @@ import (
 	"github.com/maurodelazeri/lion/venues/config"
 	"github.com/maurodelazeri/lion/venues/deribit"
 	"github.com/maurodelazeri/lion/venues/gateio"
+	"github.com/maurodelazeri/lion/venues/gemini"
 	"github.com/pquerna/ffjson/ffjson"
 	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
@@ -156,6 +157,8 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(deribit.Deribit)
 	case "GATEIO":
 		exch = new(gateio.Gateio)
+	case "GEMINI":
+		exch = new(gemini.Gemini)
 	// case "OKEX_INTERNATIONAL_FUT":
 	// 	exch = new(okex.Okex)
 	// case "OKEX_INTERNATIONAL_SPOT":
@@ -166,8 +169,6 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 	// 	exch = new(zb.Zb)
 	// case "POLONIEX":
 	// 	exch = new(poloniex.Poloniex)
-	// case "GEMINI":
-	// 	exch = new(gemini.Gemini)
 	// case "FOXBIT":
 	// 	exch = new(foxbit.Foxbit)
 	// case "BITCAMBIO":
