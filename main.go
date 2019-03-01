@@ -19,15 +19,20 @@ import (
 	pbEvent "github.com/maurodelazeri/lion/protobuf/heraldsquareAPI"
 	venue "github.com/maurodelazeri/lion/venues"
 	"github.com/maurodelazeri/lion/venues/binance"
+	"github.com/maurodelazeri/lion/venues/bitcambio"
 	"github.com/maurodelazeri/lion/venues/bitfinex"
 	"github.com/maurodelazeri/lion/venues/bitmex"
 	"github.com/maurodelazeri/lion/venues/coinbase"
 	"github.com/maurodelazeri/lion/venues/config"
 	"github.com/maurodelazeri/lion/venues/deribit"
+	"github.com/maurodelazeri/lion/venues/foxbit"
 	"github.com/maurodelazeri/lion/venues/gateio"
 	"github.com/maurodelazeri/lion/venues/gemini"
 	"github.com/maurodelazeri/lion/venues/huobi"
+	"github.com/maurodelazeri/lion/venues/kraken"
 	"github.com/maurodelazeri/lion/venues/okex"
+	"github.com/maurodelazeri/lion/venues/poloniex"
+	"github.com/maurodelazeri/lion/venues/zb"
 	"github.com/pquerna/ffjson/ffjson"
 	uuid "github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
@@ -149,6 +154,8 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 	switch conf.Venue.Name {
 	case "BINANCE":
 		exch = new(binance.Binance)
+	case "BITCAMBIO":
+		exch = new(bitcambio.Bitcambio)
 	case "COINBASEPRO":
 		exch = new(coinbase.Coinbase)
 	case "BITFINEX":
@@ -157,26 +164,22 @@ func LoadVenue(conf config.VenueConfig) (venue.Venues, error) {
 		exch = new(bitmex.Bitmex)
 	case "DERIBIT":
 		exch = new(deribit.Deribit)
+	case "FOXBIT":
+		exch = new(foxbit.Foxbit)
 	case "GATEIO":
 		exch = new(gateio.Gateio)
 	case "GEMINI":
 		exch = new(gemini.Gemini)
 	case "HUOBIGLOBAL":
 		exch = new(huobi.Huobi)
+	case "KRAKEN":
+		exch = new(kraken.Kraken)
 	case "OKEX":
 		exch = new(okex.Okex)
-	// case "OKEX_INTERNATIONAL_FUT":
-	// 	exch = new(okex.Okex)
-	// case "ZB":
-	// 	exch = new(zb.Zb)
-	// case "POLONIEX":
-	// 	exch = new(poloniex.Poloniex)
-	// case "FOXBIT":
-	// 	exch = new(foxbit.Foxbit)
-	// case "BITCAMBIO":
-	// 	exch = new(bitcambio.Bitcambio)
-	// case "KRAKEN":
-	// 	exch = new(kraken.Kraken)
+	case "POLONIEX":
+		exch = new(poloniex.Poloniex)
+	case "ZB":
+		exch = new(zb.Zb)
 	default:
 		return exch, errors.New("venue " + conf.Venue.Name + " not found")
 	}
